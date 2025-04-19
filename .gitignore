@@ -1,0 +1,13 @@
+# IDE Files
+.idea
+.vs
+
+# Logs
+logs
+
+# Security Files
+configs/configs.json
+configs/docker/configs.json
+.env
+*.exe
+docs
