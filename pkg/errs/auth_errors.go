@@ -15,6 +15,7 @@ var (
 	ErrEmailOrPasswordIsEmpty      = errors.New("ErrEmailOrPasswordIsEmpty")
 	ErrPermissionDenied            = errors.New("ErrPermissionDenied")
 	ErrUnauthorized                = errors.New("ErrUnauthorized")
+	ErrUserNotFound                = errors.New("ErrUserNotFound")
 	ErrEmailIsRequired             = errors.New("email is required")
 	ErrUsernameIsRequired          = errors.New("username is required")
 	ErrFirstNameIsRequired         = errors.New("first name is required")

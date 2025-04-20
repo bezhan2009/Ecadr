@@ -20,6 +20,16 @@ import (
 	"syscall"
 )
 
+// @title Ecadr API
+// @version 1.0.0
+
+// @description API Server for Ecadr Application
+// @host localhost:6565
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 	red := color.New(color.FgRed).SprintFunc()
 	green := color.New(color.FgGreen).SprintFunc()

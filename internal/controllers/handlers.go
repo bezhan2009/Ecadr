@@ -150,6 +150,7 @@ func handleNotFoundErrors(err error) bool {
 func handleUnauthorizedErrors(err error) bool {
 	return errors.Is(err, errs.ErrInvalidToken) ||
 		errors.Is(err, errs.ErrUnauthorized) ||
+		errors.Is(err, errs.ErrUserNotFound) ||
 		errors.Is(err, errs.ErrRefreshTokenExpired)
 }
 

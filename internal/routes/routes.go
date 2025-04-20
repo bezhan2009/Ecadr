@@ -1,9 +1,13 @@
 package routes
 
 import (
+	_ "Ecadr/docs"
 	"Ecadr/internal/controllers"
+	"Ecadr/internal/controllers/ai"
 	"Ecadr/internal/controllers/middlewares"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
 
 func InitRoutes(r *gin.Engine) *gin.Engine {
@@ -11,6 +15,8 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 	{
 		pingRoute.GET("/", controllers.Ping)
 	}
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// usersRoute Маршруты для пользователей (профили)
 	usersRoute := r.Group("/users")
@@ -30,8 +36,8 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 	}
 
 	// vacancy Маршруты для вакансий
-	r.GET("/vacancy", controllers.GetAllVacancies)
 	r.GET("/vacancy/:id", controllers.GetVacancyByID)
+	r.GET("/vacancy", middlewares.CheckUserAuthentication, ai.GetAnalyseForUserVacancies)
 	vacancy := r.Group("/vacancy", middlewares.CheckUserWorker)
 	{
 		vacancy.POST("", controllers.CreateVacancy)
@@ -40,9 +46,8 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 	}
 
 	// course Маршруты для курсов
-	r.GET("/course", controllers.GetAllCourses)
+	r.GET("/course", middlewares.CheckUserAuthentication, ai.GetAnalyseForUserCourse)
 	r.GET("/course/:id", controllers.GetCourseByID)
-
 	course := r.Group("/course", middlewares.CheckUserWorker)
 	{
 		course.POST("", controllers.CreateCourse)

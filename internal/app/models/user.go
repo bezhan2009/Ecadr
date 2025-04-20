@@ -27,5 +27,5 @@ type User struct {
 
 type Role struct {
 	ID   int    `gorm:"primaryKey"`
-	Name string `gorm:"not null"`
+	Name string `gorm:"type:varchar(20);not null;unique"`
 }
