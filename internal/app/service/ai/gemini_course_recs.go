@@ -110,7 +110,7 @@ func GetAnalyseForUserCourse(courses []models.Course,
 	fmt.Println("GeminiTextParse: ", GeminiTextParse)
 
 	if GeminiTextParse == "[]" {
-		return analysedCourses, errs.ErrNoVacancyFound
+		return analysedCourses, errs.ErrNoCourseFound
 	}
 
 	if err := json.Unmarshal([]byte(GeminiTextParse), &analysedCourses); err != nil {

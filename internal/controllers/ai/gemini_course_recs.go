@@ -11,6 +11,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetAnalyseForUserCourse godoc
+// @Summary Анализ курсов для пользователя
+// @Description Возвращает список рекомендованных курсов на основе данных пользователя (оценки, достижения и т.д.)
+// @Tags AI
+// @Accept  json
+// @Produce  json
+// @Param search query string false "Поисковый запрос по курсам"
+// @Success 200 {array} models.CourseResponse "Успешный ответ с курсами (если нет подходящих)"
+// @Success 201 {object} []models.CourseResponse "Рекомендованные курсы на основе анализа AI"
+// @Failure 400 {object} errs.ErrorResp "Неверный запрос или пользователь не найден"
+// @Failure 500 {object} errs.ErrorResp "Внутренняя ошибка сервера"
+// @Router /course [get]
+// @Security BearerAuth
 func GetAnalyseForUserCourse(c *gin.Context) {
 	search := c.Query("search")
 	userID := c.GetUint(middlewares.UserIDCtx)
@@ -51,7 +64,7 @@ func GetAnalyseForUserCourse(c *gin.Context) {
 		userData.Achievements,
 	)
 	if err != nil {
-		if errors.Is(err, errs.ErrCourseNotFound) {
+		if errors.Is(err, errs.ErrNoCourseFound) {
 			c.JSON(200, courses)
 			return
 		}

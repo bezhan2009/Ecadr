@@ -18,7 +18,7 @@ var (
 	ErrNoProductFound          = errors.New("ErrNoProductFound")
 	ErrStoreNotFound           = errors.New("ErrStoreNotFound")
 	ErrDeleteFailed            = errors.New("ErrDeleteFailed")
-	ErrCourseNotFound          = errors.New("ErrCourseNotFound")
+	ErrNoCourseFound           = errors.New("ErrNoCourseFound")
 	ErrNoVacancyFound          = errors.New("ErrNoVacancyFound")
 	ErrFetchingProducts        = errors.New("ErrFetchingProducts")
 	WarningNoProductsFound     = errors.New("WarningNoProductsFound")

@@ -1,5 +1,9 @@
 package models
 
+import (
+	"time"
+)
+
 // TokenResponse represents the response with access token and user ID
 type TokenResponse struct {
 	AccessToken  string `json:"access_token"`
@@ -123,4 +127,28 @@ type StoreReviewRequest struct {
 type CommentRequest struct {
 	ParentID    uint   `json:"parent_id"`
 	CommentText string `json:"text" binding:"required"`
+}
+
+type CourseResponse struct {
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Subject     string    `json:"subject"`
+	Tags        []string  `json:"tags"`
+	WorkerID    int       `json:"worker_id"`
+	Worker      User      `json:"-"`
+	StartDate   time.Time `json:"start_date"`
+	EndDate     time.Time `json:"end_date"`
+}
+
+type VacancyResponse struct {
+	Title       string   `json:"title"`
+	Description string   `json:"description"`
+	Subject     string   `json:"subject"`
+	Tags        []string `json:"tags"`
+	WorkerID    int      `json:"worker_id"`
+	Worker      User     `json:"-"`
+	Contact     string   `json:"contact"`
+	Salary      Salary   `json:"salary"`
+	Location    string   `json:"location"`
+	Experience  string   `json:"experience"`
 }
