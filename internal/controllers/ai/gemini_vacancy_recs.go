@@ -23,7 +23,7 @@ import (
 // @Failure 400 {object} errs.ErrorResp "Неверный запрос или пользователь не найден"
 // @Failure 500 {object} errs.ErrorResp "Внутренняя ошибка сервера"
 // @Router /vacancy [get]
-// @Security BearerAuth
+// @Security ApiKeyAuth
 func GetAnalyseForUserVacancies(c *gin.Context) {
 	search := c.Query("search")
 	userID := c.GetUint(middlewares.UserIDCtx)

@@ -107,7 +107,6 @@ func GetAnalyseForUserVacancies(vacancies []models.Vacancy,
 	var GeminiText = GeminiResp.Candidates[0].Content.Parts[0].Text
 
 	var GeminiTextParse = addBrackets(GeminiText[8 : len(GeminiText)-5])
-	fmt.Println("GeminiTextParse: ", GeminiTextParse)
 
 	if GeminiTextParse == "[]" {
 		return analysedVacancies, errs.ErrNoVacancyFound
