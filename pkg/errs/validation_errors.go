@@ -9,6 +9,7 @@ var (
 	ErrPathParametrized         = errors.New("ErrPathParametrized")
 	ErrInvalidMinPrice          = errors.New("ErrInvalidMinPrice")
 	ErrInvalidMaxPrice          = errors.New("ErrInvalidMaxPrice")
+	ErrInvalidRecommendIDs      = errors.New("ErrInvalidRecommendIDs")
 	ErrInvalidAmount            = errors.New("ErrInvalidAmount")
 	ErrInvalidPrice             = errors.New("ErrInvalidPrice")
 	ErrInsufficientFunds        = errors.New("ErrInsufficientFunds")

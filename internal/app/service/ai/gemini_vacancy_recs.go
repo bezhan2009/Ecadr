@@ -16,7 +16,6 @@ func GetAnalyseForUserVacancies(vacancies []models.Vacancy,
 	kinderNote []models.KindergartenNote,
 	schoolGrades []models.SchoolGrade,
 	achievements []models.Achievement) (analysedVacancies []models.Vacancy, err error) {
-
 	jsonKinderNote, err := json.Marshal(kinderNote)
 	if err != nil {
 		logger.Error.Printf("Error marshalling kindernote\n\tKinderNote:%v\n\tError: %v", kinderNote, err)
@@ -108,7 +107,7 @@ func GetAnalyseForUserVacancies(vacancies []models.Vacancy,
 
 	var GeminiTextParse = addBrackets(GeminiText[8 : len(GeminiText)-5])
 
-	if GeminiTextParse == "[]" {
+	if GeminiTextParse == "[]" || len(GeminiTextParse) < 10 {
 		return analysedVacancies, errs.ErrNoVacancyFound
 	}
 

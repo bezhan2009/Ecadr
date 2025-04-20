@@ -24,6 +24,12 @@
     "database": "ecadr_db",
     "sslmode": "disable"
   },
+  "redis_params": {
+    "host": "redis",
+    "port": 6379,
+    "password": "",
+    "db": 0
+  },
   "auth_params": {
     "jwt_secret_key": "",
     "jwt_ttl_minutes": 60

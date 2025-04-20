@@ -29,7 +29,7 @@ func SignIn(userDataCheck, password string) (user models.User, accessToken strin
 		}
 	}
 
-	accessToken, refreshToken, err = utils.GenerateToken(user.ID, uint(user.RoleID), user.Username)
+	accessToken, refreshToken, err = utils.GenerateToken(uint(user.RoleID), user.ID, user.Username)
 	if err != nil {
 		return user, "", "", err
 	}

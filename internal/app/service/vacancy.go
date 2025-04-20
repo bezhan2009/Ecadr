@@ -15,6 +15,15 @@ func GetAllVacancies(search string) (vacancies []models.Vacancy, err error) {
 	return vacancies, nil
 }
 
+func GetAllWorkerVacancies(workerID uint, search string) (vacancies []models.Vacancy, err error) {
+	vacancies, err = repository.GetAllWorkerVacancies(workerID, search)
+	if err != nil {
+		return []models.Vacancy{}, err
+	}
+
+	return vacancies, nil
+}
+
 func GetVacancyByID(vacancyID int) (vacancy models.Vacancy, err error) {
 	vacancy, err = repository.GetVacancyById(vacancyID)
 	if err != nil {

@@ -10,14 +10,50 @@ func GetAllCourses(search string) (courses []models.Course, err error) {
 	query := db.GetDBConn()
 
 	if search != "" {
-		// Пример: ищем по title и description
 		likeSearch := "%" + search + "%"
-		query = query.Where("title ILIKE ? OR description ILIKE ?", likeSearch, likeSearch)
+
+		query = query.Where(`
+			title ILIKE ?
+			OR description ILIKE ?
+			OR subject ILIKE ?
+			OR CAST(worker_id AS TEXT) ILIKE ?
+			OR CAST(start_date AS TEXT) ILIKE ?
+			OR CAST(end_date AS TEXT) ILIKE ?
+			OR EXISTS (
+				SELECT 1 FROM unnest(tags) AS tag WHERE tag ILIKE ?
+			)
+		`, likeSearch, likeSearch, likeSearch, likeSearch, likeSearch, likeSearch, likeSearch)
 	}
 
 	if err = query.Find(&courses).Error; err != nil {
 		logger.Error.Printf("[repository.GetAllCourses] error while getting courses: %v", err)
+		return []models.Course{}, TranslateGormError(err)
+	}
 
+	return courses, nil
+}
+
+func GetAllWorkerCourses(workerID uint, search string) (courses []models.Course, err error) {
+	query := db.GetDBConn()
+
+	if search != "" {
+		likeSearch := "%" + search + "%"
+
+		query = query.Where(`
+			title ILIKE ?
+			OR description ILIKE ?
+			OR subject ILIKE ?
+			OR CAST(worker_id AS TEXT) ILIKE ?
+			OR CAST(start_date AS TEXT) ILIKE ?
+			OR CAST(end_date AS TEXT) ILIKE ?
+			OR EXISTS (
+				SELECT 1 FROM unnest(tags) AS tag WHERE tag ILIKE ?
+			)
+		`, likeSearch, likeSearch, likeSearch, likeSearch, likeSearch, likeSearch, likeSearch)
+	}
+
+	if err = query.Where("worker_id = ?", workerID).Find(&courses).Error; err != nil {
+		logger.Error.Printf("[repository.GetAllWorkerCourses] Error while getting worker courses: %v", err)
 		return []models.Course{}, TranslateGormError(err)
 	}
 

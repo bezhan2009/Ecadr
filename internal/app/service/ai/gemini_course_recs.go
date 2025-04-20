@@ -108,7 +108,7 @@ func GetAnalyseForUserCourse(courses []models.Course,
 
 	var GeminiTextParse = addBrackets(GeminiText[8 : len(GeminiText)-5])
 
-	if GeminiTextParse == "[]" {
+	if GeminiTextParse == "[]" || len(GeminiTextParse) < 10 {
 		return analysedCourses, errs.ErrNoCourseFound
 	}
 

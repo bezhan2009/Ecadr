@@ -15,6 +15,15 @@ func GetAllCourses(search string) (courses []models.Course, err error) {
 	return courses, nil
 }
 
+func GetAllWorkerCourses(workerID uint, search string) (courses []models.Course, err error) {
+	courses, err = repository.GetAllWorkerCourses(workerID, search)
+	if err != nil {
+		return []models.Course{}, err
+	}
+
+	return courses, nil
+}
+
 func GetCourseById(id int) (course models.Course, err error) {
 	course, err = repository.GetCourseById(id)
 	if err != nil {

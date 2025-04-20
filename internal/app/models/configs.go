@@ -6,6 +6,7 @@ type Configs struct {
 	LogParams      LogParams      `json:"log_params"`
 	AppParams      AppParams      `json:"app_params"`
 	PostgresParams PostgresParams `json:"postgres_params"`
+	RedisParams    RedisParams    `json:"redis_params"`
 	Auth           Auth           `json:"auth"`
 }
 
@@ -35,6 +36,14 @@ type PostgresParams struct {
 	Port     string `json:"port"`
 	Database string `json:"database"`
 	SSLMode  string `json:"sslmode"`
+}
+
+type RedisParams struct {
+	Host       string `json:"host"`
+	Port       int    `json:"port"`
+	Password   string `json:"password"`
+	DB         int    `json:"db"`
+	TTLMinutes int    `json:"ttl_minutes"`
 }
 
 type Auth struct {

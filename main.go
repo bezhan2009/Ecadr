@@ -64,6 +64,11 @@ func main() {
 		panic(err)
 	}
 
+	err = db.InitializeRedis(security.AppSettings.RedisParams)
+	if err != nil {
+		panic(err)
+	}
+
 	router := gin.Default()
 
 	mainServer := new(server.Server)
@@ -85,10 +90,10 @@ func main() {
 		fmt.Println(fmt.Sprintf("Error closing database connection: %s", err.Error()))
 	}
 
-	//err = db2.CloseUserDBConn()
-	//if err != nil {
-	//	fmt.Println(fmt.Sprintf("Error closing user database connection: %s", err.Error()))
-	//}
+	err = db.CloseRedisConnection()
+	if err != nil {
+		fmt.Println(fmt.Sprintf("Error closing redis connection: %s", err.Error()))
+	}
 
 	// Корректное завершение HTTP-сервера
 	if err = mainServer.Shutdown(context.Background()); err != nil {

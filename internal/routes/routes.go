@@ -35,24 +35,46 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 		auth.POST("/refresh", controllers.RefreshToken)
 	}
 
-	// vacancy Маршруты для вакансий
-	r.GET("/vacancy/:id", controllers.GetVacancyByID)
-	r.GET("/vacancy", middlewares.CheckUserAuthentication, ai.GetAnalyseForUserVacancies)
-	vacancy := r.Group("/vacancy", middlewares.CheckUserWorker)
+	// vacancy и vacancyWorker Маршруты для вакансий
+	vacancy := r.Group("/vacancy")
 	{
-		vacancy.POST("", controllers.CreateVacancy)
-		vacancy.PATCH("/:id", controllers.UpdateVacancy)
-		vacancy.DELETE("/:id", controllers.DeleteVacancyByID)
+		vacancy.GET("", middlewares.CheckUserAuthentication, ai.GetAnalyseForUserVacancies)
+		vacancy.GET("/:id", controllers.GetVacancyByID)
+		vacancy.GET("/worker/:worker_id", controllers.GetAllWorkerVacancies)
 	}
 
-	// course Маршруты для курсов
-	r.GET("/course", middlewares.CheckUserAuthentication, ai.GetAnalyseForUserCourse)
-	r.GET("/course/:id", controllers.GetCourseByID)
-	course := r.Group("/course", middlewares.CheckUserWorker)
+	vacancyWorker := r.Group("/vacancy", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker)
 	{
-		course.POST("", controllers.CreateCourse)
-		course.PATCH("/:id", controllers.UpdateCourse)
-		course.DELETE("/:id", controllers.DeleteCourse)
+		vacancyWorker.POST("", controllers.CreateVacancy)
+		vacancyWorker.PATCH("/:id", controllers.UpdateVacancy)
+		vacancyWorker.DELETE("/:id", controllers.DeleteVacancyByID)
+
+		vacancyWorker.POST("/recommends", controllers.CreateRecommendVacancy)
+	}
+
+	// course и courseWorker Маршруты для курсов
+	course := r.Group("/course")
+	{
+		course.GET("", middlewares.CheckUserAuthentication, ai.GetAnalyseForUserCourse)
+		course.GET("/:id", controllers.GetCourseByID)
+		course.GET("/worker/:worker_id", controllers.GetAllWorkerCourses)
+	}
+
+	courseWorker := r.Group("/course", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker)
+	{
+		courseWorker.POST("", controllers.CreateCourse)
+		courseWorker.PATCH("/:id", controllers.UpdateCourse)
+		courseWorker.DELETE("/:id", controllers.DeleteCourse)
+
+		courseWorker.POST("/recommends", controllers.CreateRecommendCourse)
+	}
+
+	// recommends Маршруты для получения своих рекомендаций
+	recommend := r.Group("/recommends", middlewares.CheckUserAuthentication)
+	{
+		recommend.GET("/:id", controllers.GetUserRecommendByID)
+		recommend.GET("/course", controllers.GetUserRecommendsCourse)
+		recommend.GET("/vacancy", controllers.GetUserRecommendsVacancy)
 	}
 
 	return r

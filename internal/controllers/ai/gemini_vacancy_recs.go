@@ -6,10 +6,31 @@ import (
 	aiSerivce "Ecadr/internal/app/service/ai"
 	"Ecadr/internal/controllers"
 	"Ecadr/internal/controllers/middlewares"
+	"Ecadr/internal/security"
+	"Ecadr/pkg/db"
 	"Ecadr/pkg/errs"
+	"Ecadr/pkg/logger"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"time"
 )
+
+func getVacancyFromRedis(key string) ([]models.Vacancy, error) {
+	VacanciesStr, err := db.GetCache(key)
+	if VacanciesStr != "" {
+		var vacanciesJson []models.Vacancy
+		err := json.Unmarshal([]byte(VacanciesStr), &vacanciesJson)
+		if err != nil {
+			db.DeleteCache(key)
+		} else {
+			return vacanciesJson, nil
+		}
+	}
+
+	return nil, err
+}
 
 // GetAnalyseForUserVacancies godoc
 // @Summary Анализ вакансий для пользователя
@@ -41,13 +62,40 @@ func GetAnalyseForUserVacancies(c *gin.Context) {
 
 	var vacancies []models.Vacancy
 	if search != "" {
+		keyCacheRedisSearch := fmt.Sprintf("searched_vacancy_%s", search)
+
+		searchVacancy, err := getVacancyFromRedis(keyCacheRedisSearch)
+		if err == nil && len(searchVacancy) > 0 {
+			c.JSON(200, searchVacancy)
+			return
+		}
+
 		vacancies, err = service.GetAllVacancies(search)
 		if err != nil {
 			controllers.HandleError(c, err)
 			return
 		}
 
+		vacancyJson, err := json.Marshal(vacancies)
+		if err != nil {
+			logger.Error.Printf("[ai.GetAnalyseForUserVacancies] Error marshalling vacancies json: %v", err)
+		} else {
+			db.SetCache(
+				keyCacheRedisSearch,
+				vacancyJson,
+				time.Duration(security.AppSettings.RedisParams.TTLMinutes)*time.Minute,
+			)
+		}
+
 		c.JSON(200, vacancies)
+		return
+	}
+
+	keyCacheRedis := fmt.Sprintf("analyzed_vacancies_%d", userID)
+
+	analysedVacanciesCache, err := getVacancyFromRedis(keyCacheRedis)
+	if err == nil && len(analysedVacanciesCache) > 0 {
+		c.JSON(200, analysedVacanciesCache)
 		return
 	}
 
@@ -65,12 +113,34 @@ func GetAnalyseForUserVacancies(c *gin.Context) {
 	)
 	if err != nil {
 		if errors.Is(err, errs.ErrNoVacancyFound) {
+			vacancyJson, err := json.Marshal(vacancies)
+			if err != nil {
+				logger.Error.Printf("[ai.GetAnalyseForUserVacancies] Error marshalling analysed vacancies json: %v", err)
+			} else {
+				db.SetCache(
+					keyCacheRedis,
+					vacancyJson,
+					time.Duration(security.AppSettings.RedisParams.TTLMinutes)*time.Minute,
+				)
+			}
+
 			c.JSON(200, vacancies)
 			return
 		}
 
 		controllers.HandleError(c, err)
 		return
+	}
+
+	vacancyJson, err := json.Marshal(analysedVacancies)
+	if err != nil {
+		logger.Error.Printf("[ai.GetAnalyseForUserVacancies] Error marshalling analysed vacancies json: %v", err)
+	} else {
+		db.SetCache(
+			keyCacheRedis,
+			vacancyJson,
+			time.Duration(security.AppSettings.RedisParams.TTLMinutes)*time.Minute,
+		)
 	}
 
 	c.JSON(201, analysedVacancies)

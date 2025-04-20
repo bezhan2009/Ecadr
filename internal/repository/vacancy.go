@@ -16,7 +16,24 @@ func GetAllVacancies(search string) (vacancies []models.Vacancy, err error) {
 	}
 
 	if err = query.Find(&vacancies).Error; err != nil {
-		logger.Error.Printf("[repository.GetAllVacancies] err while getting vacancies: %v", err)
+		logger.Error.Printf("[repository.GetAllVacancies] Err while getting vacancies: %v", err)
+		return nil, TranslateGormError(err)
+	}
+
+	return vacancies, nil
+}
+
+func GetAllWorkerVacancies(workerID uint, search string) (vacancies []models.Vacancy, err error) {
+	query := db.GetDBConn()
+
+	if search != "" {
+		// Пример: ищем по title и description
+		likeSearch := "%" + search + "%"
+		query = query.Where("title ILIKE ? OR description ILIKE ?", likeSearch, likeSearch)
+	}
+
+	if err = query.Where("worker_id = ?", workerID).Find(&vacancies).Error; err != nil {
+		logger.Error.Printf("[repository.GetAllWorkerVacancies] Err while getting worker vacancies: %v", err)
 		return nil, TranslateGormError(err)
 	}
 
@@ -25,7 +42,7 @@ func GetAllVacancies(search string) (vacancies []models.Vacancy, err error) {
 
 func GetVacancyById(vacancyId int) (vacancy models.Vacancy, err error) {
 	if err = db.GetDBConn().Where("id = ?", vacancyId).First(&vacancy).Error; err != nil {
-		logger.Error.Printf("[repository.GetVacancyById] err while getting vacancy: %v", err)
+		logger.Error.Printf("[repository.GetVacancyById] Err while getting vacancy: %v", err)
 
 		return models.Vacancy{}, TranslateGormError(err)
 	}
@@ -35,7 +52,7 @@ func GetVacancyById(vacancyId int) (vacancy models.Vacancy, err error) {
 
 func CreateVacancy(vacancy models.Vacancy) (uint, error) {
 	if err := db.GetDBConn().Create(&vacancy).Error; err != nil {
-		logger.Error.Printf("[repository.CreateVacancy] err while creating vacancy: %v", err)
+		logger.Error.Printf("[repository.CreateVacancy] Err while creating vacancy: %v", err)
 
 		return vacancy.ID, TranslateGormError(err)
 	}
@@ -45,7 +62,7 @@ func CreateVacancy(vacancy models.Vacancy) (uint, error) {
 
 func UpdateVacancy(vacancy models.Vacancy) (err error) {
 	if err = db.GetDBConn().Save(&vacancy).Error; err != nil {
-		logger.Error.Printf("[repository.UpdateVacancy] err while updating vacancy: %v", err)
+		logger.Error.Printf("[repository.UpdateVacancy] Err while updating vacancy: %v", err)
 
 		return TranslateGormError(err)
 	}
@@ -55,9 +72,9 @@ func UpdateVacancy(vacancy models.Vacancy) (err error) {
 
 func DeleteVacancy(vacancy models.Vacancy) (err error) {
 	if err = db.GetDBConn().Delete(&vacancy).Error; err != nil {
-		logger.Error.Printf("[repository.DeleteVacancy] err while deleting vacancy: %v", err)
+		logger.Error.Printf("[repository.DeleteVacancy] Err while deleting vacancy: %v", err)
 
-		return err
+		return TranslateGormError(err)
 	}
 
 	return nil

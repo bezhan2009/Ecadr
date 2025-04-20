@@ -140,6 +140,11 @@ type CourseResponse struct {
 	EndDate     time.Time `json:"end_date"`
 }
 
+type CourseReq struct {
+	Message  string `json:"message"`
+	CourseID uint   `json:"course_id"`
+}
+
 type VacancyResponse struct {
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
@@ -151,4 +156,14 @@ type VacancyResponse struct {
 	Salary      Salary   `json:"salary"`
 	Location    string   `json:"location"`
 	Experience  string   `json:"experience"`
+}
+
+type VacancyReq struct {
+	Message   string `json:"message"`
+	VacancyID uint   `json:"vacancy_id"`
+}
+
+type RecommendReq struct {
+	Message     string `json:"message"`
+	RecommendID uint   `json:"recommend_id"`
 }

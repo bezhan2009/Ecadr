@@ -174,7 +174,7 @@ func RefreshToken(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := utils2.GenerateToken(claims.UserID, claims.RoleID, claims.Username)
+	accessToken, refreshToken, err := utils2.GenerateToken(claims.RoleID, claims.UserID, claims.Username)
 	if err != nil {
 		HandleError(c, err)
 		return

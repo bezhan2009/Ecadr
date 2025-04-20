@@ -101,6 +101,7 @@ func handleBadRequestErrors(err error) bool {
 		errors.Is(err, errs.ErrInvalidFeaturedProductID) ||
 		errors.Is(err, errs.ErrInvalidAddressName) ||
 		errors.Is(err, errs.ErrInvalidAccountNumber) ||
+		errors.Is(err, errs.ErrInvalidRecommendIDs) ||
 		errors.Is(err, errs.ErrAddressNameUniquenessFailed) ||
 		errors.Is(err, errs.ErrAccountNumberUniquenessFailed) ||
 		errors.Is(err, errs.ErrInvalidMinPrice) ||

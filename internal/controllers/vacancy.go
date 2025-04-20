@@ -11,18 +11,44 @@ import (
 	"strconv"
 )
 
-func GetAllVacancies(c *gin.Context) {
-	searchText := c.Query("search")
+// GetAllWorkerVacancies godoc
+// @Summary Получить все воркера вакансии
+// @Description Возвращает список всех вакансий воркера с возможностью поиска
+// @Tags Vacancies
+// @Produce json
+// @Param id path int true "workerID вакансии"
+// @Param search query string false "Поисковый запрос"
+// @Success 200 {object} models.VacancyResponse "Вакансия"
+// @Failure 500 {object} errs.ErrorResp
+// @Router /vacancy/worker/{worker_id} [get]
+func GetAllWorkerVacancies(c *gin.Context) {
+	search := c.Query("search")
+	workerStrID := c.Param("worker_id")
+	workerID, err := strconv.Atoi(workerStrID)
+	if err != nil {
+		HandleError(c, errs.ErrInvalidID)
+		return
+	}
 
-	vacancies, err := service.GetAllVacancies(searchText)
+	vacancies, err := service.GetAllWorkerVacancies(uint(workerID), search)
 	if err != nil {
 		HandleError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": vacancies})
+	c.JSON(http.StatusOK, vacancies)
 }
 
+// GetVacancyByID godoc
+// @Summary Получить все вакансии
+// @Description Возвращает список всех вакансий с возможностью поиска
+// @Tags Vacancies
+// @Produce json
+// @Param id path int true "ID вакансии"
+// @Param search query string false "Поисковый запрос"
+// @Success 200 {object} models.VacancyResponse "Вакансия"
+// @Failure 500 {object} errs.ErrorResp
+// @Router /vacancy/{id} [get]
 func GetVacancyByID(c *gin.Context) {
 	vacancyIDStr := c.Param("id")
 	vacancyID, err := strconv.Atoi(vacancyIDStr)
@@ -37,9 +63,21 @@ func GetVacancyByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": vacancy})
+	c.JSON(http.StatusOK, vacancy)
 }
 
+// CreateVacancy godoc
+// @Summary Создать вакансию
+// @Description Создаёт новую вакансию
+// @Tags Vacancies
+// @Accept json
+// @Produce json
+// @Param vacancy body models.VacancyResponse true "Информация о вакансии"
+// @Success 200 {object} models.VacancyReq "ID созданной вакансии"
+// @Failure 400 {object} errs.ErrorResp
+// @Failure 500 {object} errs.ErrorResp
+// @Router /vacancy [post]
+// @Security ApiKeyAuth
 func CreateVacancy(c *gin.Context) {
 	var vacancy models.Vacancy
 	if err := c.ShouldBindJSON(&vacancy); err != nil {
@@ -65,6 +103,20 @@ func CreateVacancy(c *gin.Context) {
 	})
 }
 
+// UpdateVacancy godoc
+// @Summary Обновить вакансию
+// @Description Обновляет вакансию по ID (только владелец может обновить)
+// @Tags Vacancies
+// @Accept json
+// @Produce json
+// @Param id path int true "ID вакансии"
+// @Param vacancy body models.VacancyResponse true "Обновлённые данные"
+// @Success 200 {object} models.VacancyReq "Успешное сообщение и ID"
+// @Failure 400 {object} errs.ErrorResp
+// @Failure 403 {object} errs.ErrorResp
+// @Failure 500 {object} errs.ErrorResp
+// @Router /vacancy/{id} [put]
+// @Security ApiKeyAuth
 func UpdateVacancy(c *gin.Context) {
 	vacancyIDStr := c.Param("id")
 	vacancyID, err := strconv.Atoi(vacancyIDStr)
@@ -101,6 +153,18 @@ func UpdateVacancy(c *gin.Context) {
 	})
 }
 
+// DeleteVacancyByID
+// @Summary Удалить вакансию
+// @Description Удаляет вакансию по ID (только владелец может удалить)
+// @Tags Vacancies
+// @Produce json
+// @Param id path int true "ID вакансии"
+// @Success 200 {object} models.VacancyReq "Успешное сообщение и ID"
+// @Failure 400 {object} errs.ErrorResp
+// @Failure 403 {object} errs.ErrorResp
+// @Failure 500 {object} errs.ErrorResp
+// @Router /vacancy/{id} [delete]
+// @Security ApiKeyAuth
 func DeleteVacancyByID(c *gin.Context) {
 	vacancyIDStr := c.Param("id")
 	vacancyID, err := strconv.Atoi(vacancyIDStr)
