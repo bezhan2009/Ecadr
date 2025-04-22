@@ -1,6 +1,7 @@
 package brokers
 
 import (
+	"Ecadr/internal/app/models"
 	"github.com/streadway/amqp"
 	"log"
 )
@@ -8,9 +9,9 @@ import (
 var RabbitConn *amqp.Connection
 var RabbitChannel *amqp.Channel
 
-func ConnectToRabbitMq() error {
+func ConnectToRabbitMq(params models.RabbitParams) error {
 	var err error
-	RabbitConn, err = amqp.Dial("amqp://guest:guest@localhost:5672/")
+	RabbitConn, err = amqp.Dial(params.URLConn)
 	if err != nil {
 		log.Fatal(err)
 	}

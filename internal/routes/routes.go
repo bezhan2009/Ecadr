@@ -5,6 +5,7 @@ import (
 	"Ecadr/internal/controllers"
 	"Ecadr/internal/controllers/ai"
 	"Ecadr/internal/controllers/middlewares"
+	aiWebSocket "Ecadr/internal/controllers/websockets/ai"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
@@ -75,6 +76,14 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 		recommend.GET("/:id", controllers.GetUserRecommendByID)
 		recommend.GET("/course", controllers.GetUserRecommendsCourse)
 		recommend.GET("/vacancy", controllers.GetUserRecommendsVacancy)
+	}
+
+	// aiChat Маршруты для ИИ
+	aiChat := r.Group("ai", middlewares.CheckUserAuthentication)
+	{
+		aiChat.GET("/recommends", ai.GetAIRecommendsForUser)
+
+		aiChat.GET("/chat", aiWebSocket.ChatAIWebSocketHandler)
 	}
 
 	return r

@@ -78,7 +78,7 @@ func handleBadRequestErrors(err error) bool {
 		errors.Is(err, errs.ErrRoleIsRequired) ||
 		errors.Is(err, errs.ErrWrongRoleID) ||
 		errors.Is(err, errs.ErrInvalidVacancyID) ||
-		errors.Is(err, errs.ErrInvalidCourseID) ||
+		errors.Is(err, errs.ErrNoAIRecommends) ||
 		errors.Is(err, errs.ErrInvalidDate) ||
 		errors.Is(err, errs.ErrEndDateBeforeStartDate) ||
 		errors.Is(err, errs.ErrInvalidCourseID) ||

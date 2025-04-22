@@ -7,6 +7,7 @@ type Configs struct {
 	AppParams      AppParams      `json:"app_params"`
 	PostgresParams PostgresParams `json:"postgres_params"`
 	RedisParams    RedisParams    `json:"redis_params"`
+	RabbitParams   RabbitParams   `json:"rabbit_params"`
 	Auth           Auth           `json:"auth"`
 }
 
@@ -44,6 +45,10 @@ type RedisParams struct {
 	Password   string `json:"password"`
 	DB         int    `json:"db"`
 	TTLMinutes int    `json:"ttl_minutes"`
+}
+
+type RabbitParams struct {
+	URLConn string `json:"url_conn"`
 }
 
 type Auth struct {

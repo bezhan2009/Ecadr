@@ -18,25 +18,25 @@ func GetAnalyseForUserVacancies(vacancies []models.Vacancy,
 	achievements []models.Achievement) (analysedVacancies []models.Vacancy, err error) {
 	jsonKinderNote, err := json.Marshal(kinderNote)
 	if err != nil {
-		logger.Error.Printf("Error marshalling kindernote\n\tKinderNote:%v\n\tError: %v", kinderNote, err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserVacancies] Error marshalling kindernote\n\tKinderNote:%v\n\tError: %v", kinderNote, err)
 		return nil, err
 	}
 
 	jsonSchoolGrades, err := json.Marshal(schoolGrades)
 	if err != nil {
-		logger.Error.Printf("Error marshalling SchoolGrades\n\tSchoolGrades:%v\n\tError: %v", schoolGrades, err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserVacancies] Error marshalling SchoolGrades\n\tSchoolGrades:%v\n\tError: %v", schoolGrades, err)
 		return nil, err
 	}
 
 	jsonAchievements, err := json.Marshal(achievements)
 	if err != nil {
-		logger.Error.Printf("Error marshalling achievements\n\tachievements:%v\n\tError: %v", achievements, err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserVacancies] Error marshalling achievements\n\tachievements:%v\n\tError: %v", achievements, err)
 		return nil, err
 	}
 
 	jsonVacancies, err := json.Marshal(vacancies)
 	if err != nil {
-		logger.Error.Printf("Error marshalling vacancies\n\tvacancies:%v\n\tError: %v", vacancies, err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserVacancies] Error marshalling vacancies\n\tvacancies:%v\n\tError: %v", vacancies, err)
 		return nil, err
 	}
 
@@ -84,7 +84,6 @@ func GetAnalyseForUserVacancies(vacancies []models.Vacancy,
 		"application/json",
 		bytes.NewBuffer(jsonBody),
 	)
-	fmt.Println(analyse)
 	if err != nil {
 		logger.Error.Printf("[aiService.GetAnalyseForUserVacancies] Error getting analyse: %v", err)
 		return nil, err

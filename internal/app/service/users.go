@@ -2,6 +2,7 @@ package service
 
 import (
 	"Ecadr/internal/app/models"
+	redisService "Ecadr/internal/app/service/redis"
 	"Ecadr/internal/repository"
 	"Ecadr/pkg/errs"
 	"Ecadr/pkg/logger"
@@ -20,9 +21,19 @@ func GetAllUsers() (users []models.User, err error) {
 }
 
 func GetUserByID(id uint) (user models.User, err error) {
+	user, err = redisService.GetCachedUser(id)
+	if err == nil {
+		return user, nil
+	}
+
 	user, err = repository.GetUserByID(strconv.Itoa(int(id)))
 	if err != nil {
 		return user, err
+	}
+
+	err = redisService.SetUserCache(user)
+	if err != nil {
+		return models.User{}, err
 	}
 
 	return user, nil
@@ -39,12 +50,13 @@ func CreateUser(user models.User) (uint, error) {
 	}
 
 	if usernameExists {
-		logger.Error.Printf("user with username %s already exists", user.Username)
+		logger.Error.Printf("[service.CreateUser] user with username %s already exists", user.Username)
+
 		return 0, errs.ErrUsernameUniquenessFailed
 	}
 
 	if emailExists {
-		logger.Error.Printf("user with email %s already exists", user.Email)
+		logger.Error.Printf("[service.CreateUser] user with email %s already exists", user.Email)
 		return 0, errs.ErrEmailUniquenessFailed
 	}
 
@@ -55,6 +67,8 @@ func CreateUser(user models.User) (uint, error) {
 	if userDB, err = repository.CreateUser(user); err != nil {
 		return 0, fmt.Errorf("failed to create user: %w", err)
 	}
+
+	redisService.SetUserCache(user)
 
 	return userDB.ID, nil
 }

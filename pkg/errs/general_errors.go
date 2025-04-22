@@ -11,6 +11,8 @@ var (
 	ErrPaymentNotFound         = errors.New("ErrPaymentNotFound")
 	ErrRecordNotFound          = errors.New("ErrRecordNotFound")
 	ErrProductNotFound         = errors.New("ErrProductNotFound")
+	ErrEmptyMessageText        = errors.New("ErrEmptyMessageText")
+	ErrNoAIRecommends          = errors.New("ErrNoAIRecommends")
 	ErrOrderNotFound           = errors.New("ErrOrderNotFound")
 	ErrCategoryNotFound        = errors.New("ErrCategoryNotFound")
 	ErrOrderStatusNotFound     = errors.New("ErrOrderStatusNotFound")

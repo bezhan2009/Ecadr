@@ -5,6 +5,7 @@ import (
 	"Ecadr/internal/routes"
 	"Ecadr/internal/security"
 	"Ecadr/internal/server"
+	"Ecadr/pkg/brokers"
 	"Ecadr/pkg/db"
 	"Ecadr/pkg/logger"
 	"context"
@@ -65,6 +66,11 @@ func main() {
 	}
 
 	err = db.InitializeRedis(security.AppSettings.RedisParams)
+	if err != nil {
+		panic(err)
+	}
+
+	err = brokers.ConnectToRabbitMq(security.AppSettings.RabbitParams)
 	if err != nil {
 		panic(err)
 	}

@@ -19,25 +19,25 @@ func GetAnalyseForUserCourse(courses []models.Course,
 
 	jsonKinderNote, err := json.Marshal(kinderNote)
 	if err != nil {
-		logger.Error.Printf("Error marshalling kindernote\n\tKinderNote:%v\n\tError: %v", kinderNote, err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error marshalling kindernote\n\tKinderNote:%v\n\tError: %v", kinderNote, err)
 		return nil, err
 	}
 
 	jsonSchoolGrades, err := json.Marshal(schoolGrades)
 	if err != nil {
-		logger.Error.Printf("Error marshalling SchoolGrades\n\tSchoolGrades:%v\n\tError: %v", schoolGrades, err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error marshalling SchoolGrades\n\tSchoolGrades:%v\n\tError: %v", schoolGrades, err)
 		return nil, err
 	}
 
 	jsonAchievements, err := json.Marshal(achievements)
 	if err != nil {
-		logger.Error.Printf("Error marshalling achievements\n\tachievements:%v\n\tError: %v", achievements, err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error marshalling achievements\n\tachievements:%v\n\tError: %v", achievements, err)
 		return nil, err
 	}
 
 	jsonVacancies, err := json.Marshal(courses)
 	if err != nil {
-		logger.Error.Printf("Error marshalling courses\n\tcourses:%v\n\tError: %v", courses, err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error marshalling courses\n\tcourses:%v\n\tError: %v", courses, err)
 		return nil, err
 	}
 
@@ -71,7 +71,7 @@ func GetAnalyseForUserCourse(courses []models.Course,
 	// сериализуем в JSON
 	jsonBody, err := json.Marshal(geminiReq)
 	if err != nil {
-		logger.Error.Printf("[aiService.GetAnalyseForUserVacancies] Error marshalling json body: %v", err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error marshalling json body: %v", err)
 		return nil, err
 	}
 
@@ -85,22 +85,21 @@ func GetAnalyseForUserCourse(courses []models.Course,
 		"application/json",
 		bytes.NewBuffer(jsonBody),
 	)
-	fmt.Println(analyse)
 	if err != nil {
-		logger.Error.Printf("[aiService.GetAnalyseForUserVacancies] Error getting analyse: %v", err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error getting analyse: %v", err)
 		return nil, err
 	}
 	defer analyse.Body.Close()
 
 	body, err := ioutil.ReadAll(analyse.Body)
 	if err != nil {
-		logger.Error.Printf("[aiService.GetAnalyseForUserVacancies] Error reading body analyse: %v", err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error reading body analyse: %v", err)
 		return nil, err
 	}
 
 	var GeminiResp models.Gemini
 	if err := json.Unmarshal(body, &GeminiResp); err != nil {
-		logger.Error.Printf("[aiService.GetAnalyseForUserVacancies] Error parsing body: %v", err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error parsing body: %v", err)
 		return nil, err
 	}
 
@@ -113,7 +112,7 @@ func GetAnalyseForUserCourse(courses []models.Course,
 	}
 
 	if err := json.Unmarshal([]byte(GeminiTextParse), &analysedCourses); err != nil {
-		logger.Error.Printf("[aiService.GetAnalyseForUserVacancies] Error parsing gemini text to courses: %v", err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error parsing gemini text to courses: %v", err)
 		return nil, err
 	}
 
