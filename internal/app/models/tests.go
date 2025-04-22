@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/lib/pq"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -12,6 +13,10 @@ type Test struct {
 	TargetType  int    `json:"target_type"` // "vacancy" или "course"
 	TargetID    int    `json:"target_id"`   // ID вакансии или курса
 	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   gorm.DeletedAt `gorm:"index"`
+
+	Questions []Question `gorm:"foreignKey:TestID"`
 }
 
 type Question struct {
@@ -21,6 +26,10 @@ type Question struct {
 	Text      string `json:"text" gorm:"type:text"`
 	Type      string `json:"type"` // "text", "single_choice", "multiple_choice"
 	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+
+	Choices []Choice `gorm:"foreignKey:QuestionID"`
 }
 
 type Choice struct {
@@ -29,6 +38,9 @@ type Choice struct {
 	Question   Question `json:"-" gorm:"foreignKey:QuestionID"`
 	Text       string   `json:"text"`
 	IsCorrect  bool     `json:"is_correct"`
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  gorm.DeletedAt `gorm:"index"`
 }
 
 type TestSubmission struct {

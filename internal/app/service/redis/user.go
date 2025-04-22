@@ -34,7 +34,6 @@ func GetCachedUser(userID uint) (models.User, error) {
 }
 
 func SetUserCache(user models.User) error {
-	fmt.Println(user)
 	cacheKey := fmt.Sprintf("user:%d", user.ID)
 	data, err := json.Marshal(user)
 	if err != nil {
