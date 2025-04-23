@@ -14,10 +14,7 @@ func ConnectToRabbitMq(params models.RabbitParams) error {
 	fmt.Println(params.URLConn)
 	RabbitConn, err = amqp.Dial(params.URLConn)
 	if err != nil {
-		RabbitConn, err = amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
-		if err != nil {
-			return err
-		}
+		return err
 	}
 
 	RabbitChannel, err = RabbitConn.Channel()
