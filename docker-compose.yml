@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "6565:6565"
+    depends_on:
+      - db
+      - redis
+    environment:
+      DB_PASSWORD: bezhan2009
+      ADMIN: bezhan
+      JWT_SECRET_KEY: c507f84b118b5f5a6ea8a6977a6937b4fdcc14b4ed2796c6d6ae7c9ad4a7370f
+      JWT_TTL_MINUTES: 60
+      JWT_TTL_HOURS: 72
+      SECRET_KEY: 0078bec8585ad8a0cd71907d455998103d689f5de55ddb4e8803bd6b7d94ba1a
+    entrypoint: /bin/sh -c "sleep 10 && ./main"
+    networks:
+      - ECadrNetwork
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: bezhan2009
+      POSTGRES_DB: ecadr_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ECadrNetwork
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - ECadrNetwork
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672" # UI
+    networks:
+      - ECadrNetwork
+
+
+networks:
+  ECadrNetwork:
+    driver: bridge
+
+volumes:
+  pgdata:
