@@ -2,7 +2,6 @@ package db
 
 import (
 	models2 "Ecadr/internal/app/models"
-	"Ecadr/internal/app/models/seeds"
 	"Ecadr/pkg/logger"
 	"errors"
 )
@@ -50,41 +49,41 @@ func Migrate() error {
 
 		return err
 	}
-
-	err = seeds.SeedRoles(dbConn)
-	if err != nil {
-		return err
-	}
-
-	err = seeds.SeedUsers(dbConn)
-	if err != nil {
-		return err
-	}
-
-	err = seeds.SeedKinderGarten(dbConn)
-	if err != nil {
-		return err
-	}
-
-	err = seeds.SeedGrades(dbConn)
-	if err != nil {
-		return err
-	}
-
-	err = seeds.SeedDastovar(dbConn)
-	if err != nil {
-		return err
-	}
-
-	err = seeds.SeedVacansy(dbConn)
-	if err != nil {
-		return err
-	}
-
-	err = seeds.SeedCourse(dbConn)
-	if err != nil {
-		return err
-	}
+	//
+	//err = seeds.SeedRoles(dbConn)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//err = seeds.SeedUsers(dbConn)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//err = seeds.SeedKinderGarten(dbConn)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//err = seeds.SeedGrades(dbConn)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//err = seeds.SeedDastovar(dbConn)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//err = seeds.SeedVacansy(dbConn)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//err = seeds.SeedCourse(dbConn)
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
 }

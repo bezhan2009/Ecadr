@@ -11,7 +11,9 @@ import (
 )
 
 func GetAllUsers(c *gin.Context) {
-	users, err := service.GetAllUsers()
+	search := c.Query("search")
+
+	users, err := service.GetAllUsers(search)
 	if err != nil {
 		logger.Error.Printf("[controllers.GetAllUsers] error: %v\n", err)
 

@@ -9,13 +9,27 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllUsers() (users []models.User, err error) {
-	err = db.GetDBConn().
+func GetAllUsers(search string) (users []models.User, err error) {
+	query := db.GetDBConn().
 		Preload("KindergartenNotes").
 		Preload("SchoolGrades").
 		Preload("Achievements").
 		Preload("TestSubmissions.Answers.Question").
-		Find(&users).Error
+		Joins("LEFT JOIN roles ON roles.id = users.role_id")
+
+	if search != "" {
+		searchPattern := "%" + search + "%"
+		query = query.Where(`
+			users.username ILIKE ? OR 
+			users.email ILIKE ? OR 
+			users.first_name ILIKE ? OR 
+			users.last_name ILIKE ? OR 
+			roles.name ILIKE ?`,
+			searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+		)
+	}
+
+	err = query.Find(&users).Error
 	if err != nil {
 		logger.Error.Printf("[repository.GetAllUsers] error getting all users: %s\n", err.Error())
 		return nil, TranslateGormError(err)
@@ -55,7 +69,7 @@ func GetUserByUsername(username string) (*models.User, error) {
 }
 
 func UserExists(username, email string) (bool, bool, error) {
-	users, err := GetAllUsers()
+	users, err := GetAllUsers("")
 	if err != nil {
 		return false, false, err
 	}

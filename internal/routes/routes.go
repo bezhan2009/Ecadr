@@ -39,7 +39,8 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 	// vacancy и vacancyWorker Маршруты для вакансий
 	vacancy := r.Group("/vacancy")
 	{
-		vacancy.GET("", middlewares.CheckUserAuthentication, ai.GetAnalyseForUserVacancies)
+		vacancy.GET("", middlewares.CheckUserAuthentication,
+			ai.GetAnalyseForUserVacancies)
 		vacancy.GET("/:id", controllers.GetVacancyByID)
 		vacancy.GET("/worker/:worker_id", controllers.GetAllWorkerVacancies)
 	}
@@ -50,6 +51,7 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 		vacancyWorker.PATCH("/:id", controllers.UpdateVacancy)
 		vacancyWorker.DELETE("/:id", controllers.DeleteVacancyByID)
 
+		vacancyWorker.GET("/users/:id", ai.GetAnalyseForVacanciesUser)
 		vacancyWorker.POST("/recommends", controllers.CreateRecommendVacancy)
 	}
 

@@ -11,8 +11,8 @@ import (
 	"strconv"
 )
 
-func GetAllUsers() (users []models.User, err error) {
-	users, err = repository.GetAllUsers()
+func GetAllUsers(search string) (users []models.User, err error) {
+	users, err = repository.GetAllUsers(search)
 	if err != nil {
 		return nil, err
 	}
