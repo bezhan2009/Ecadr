@@ -3,6 +3,7 @@ package repository
 import (
 	"Ecadr/internal/app/models"
 	"Ecadr/pkg/db"
+	"Ecadr/pkg/errs"
 	"Ecadr/pkg/logger"
 )
 
@@ -46,7 +47,21 @@ func GetUserRecommendByID(recommendID, userID uint) (recommend *models.Recommend
 	return recommend, nil
 }
 
+func GetRecommendByTargetAndUserID(recommend models.Recommend) (recommendMd models.Recommend, err error) {
+	if err = db.GetDBConn().Model(&models.Recommend{}).Where("target_id = ? AND target_type = ? AND user_id = ?", recommend.TargetID, recommend.TargetType, recommend.UserID).First(&recommendMd).Error; err != nil {
+		logger.Error.Printf("[repository.GetRecommendByTargetAndUserID] Error while getting recommend: %v", err)
+
+		return recommendMd, TranslateGormError(err)
+	}
+
+	return recommendMd, nil
+}
+
 func CreateRecommend(recommends models.Recommend) (err error) {
+	_, err = GetRecommendByTargetAndUserID(recommends)
+	if err == nil {
+		return errs.ErrAlreadyExists
+	}
 	if err = db.GetDBConn().Model(&models.Recommend{}).Create(&recommends).Error; err != nil {
 		logger.Error.Printf("[repository.CreateRecommend] Error while creating recommends: %v", err)
 

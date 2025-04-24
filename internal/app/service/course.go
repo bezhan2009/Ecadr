@@ -3,7 +3,6 @@ package service
 import (
 	"Ecadr/internal/app/models"
 	"Ecadr/internal/repository"
-	"Ecadr/pkg/errs"
 )
 
 func GetAllCourses(search string) (courses []models.Course, err error) {
@@ -42,17 +41,13 @@ func CreateCourse(course models.Course) (id int, err error) {
 	return id, nil
 }
 
-func UpdateCourse(userID int, course models.Course) (id int, err error) {
-	if course.WorkerID != userID {
-		return id, errs.ErrRecordNotFound
-	}
-
+func UpdateCourse(course models.Course) (id int, err error) {
 	err = repository.UpdateCourse(course)
 	if err != nil {
-		return id, err
+		return int(course.ID), err
 	}
 
-	return id, nil
+	return int(course.ID), nil
 }
 
 func DeleteCourse(userID, courseID int) (err error) {

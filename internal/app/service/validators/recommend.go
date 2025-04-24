@@ -5,17 +5,13 @@ import (
 	"Ecadr/pkg/errs"
 )
 
-func ValidateRecommendCourse(recommend models.Recommend) (err error) {
-	if recommend.CourseID == 0 {
+func ValidateRecommend(recommend models.Recommend) (err error) {
+	if recommend.TargetID == 0 {
 		return errs.ErrInvalidRecommendIDs
 	}
 
-	return nil
-}
-
-func ValidateRecommendVacancy(recommend models.Recommend) (err error) {
-	if recommend.VacancyID == 0 {
-		return errs.ErrInvalidRecommendIDs
+	if recommend.TargetType != "course" && recommend.TargetType != "vacancy" {
+		return errs.ErrInvalidType
 	}
 
 	return nil

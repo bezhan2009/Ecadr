@@ -7,5 +7,5 @@ type Criteria struct {
 
 	Title     string  `json:"title"`
 	VacancyID uint    `json:"vacancy_id"`
-	Vacancy   Vacancy `json:"vacancy" gorm:"foreignKey:VacancyID"`
+	Vacancy   Vacancy `json:"-" gorm:"foreignKey:VacancyID"`
 }

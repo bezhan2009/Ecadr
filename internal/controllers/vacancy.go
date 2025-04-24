@@ -79,11 +79,15 @@ func GetVacancyByID(c *gin.Context) {
 // @Router /vacancy [post]
 // @Security ApiKeyAuth
 func CreateVacancy(c *gin.Context) {
+	userID := c.GetUint(middlewares.UserIDCtx)
+
 	var vacancy models.Vacancy
 	if err := c.ShouldBindJSON(&vacancy); err != nil {
 		HandleError(c, errs.ErrValidationFailed)
 		return
 	}
+
+	vacancy.WorkerID = int(userID)
 
 	err := validators.ValidateVacancy(vacancy)
 	if err != nil {

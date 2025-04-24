@@ -2,6 +2,7 @@ package db
 
 import (
 	models2 "Ecadr/internal/app/models"
+	"Ecadr/internal/app/models/seeds"
 	"Ecadr/pkg/logger"
 	"errors"
 )
@@ -36,7 +37,9 @@ func Migrate() error {
 		&models2.SchoolGrade{},
 		&models2.KindergartenNote{},
 		&models2.Vacancy{},
+		&models2.Criteria{},
 		&models2.Course{},
+		&models2.Recommend{},
 		&models2.Test{},
 		&models2.Question{},
 		&models2.Choice{},
@@ -49,41 +52,46 @@ func Migrate() error {
 
 		return err
 	}
-	//
-	//err = seeds.SeedRoles(dbConn)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//err = seeds.SeedUsers(dbConn)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//err = seeds.SeedKinderGarten(dbConn)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//err = seeds.SeedGrades(dbConn)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//err = seeds.SeedDastovar(dbConn)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//err = seeds.SeedVacansy(dbConn)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//err = seeds.SeedCourse(dbConn)
-	//if err != nil {
-	//	return err
-	//}
+
+	err = seeds.SeedRoles(dbConn)
+	if err != nil {
+		return err
+	}
+
+	err = seeds.SeedUsers(dbConn)
+	if err != nil {
+		return err
+	}
+
+	err = seeds.SeedKinderGarten(dbConn)
+	if err != nil {
+		return err
+	}
+
+	err = seeds.SeedGrades(dbConn)
+	if err != nil {
+		return err
+	}
+
+	err = seeds.SeedDastovar(dbConn)
+	if err != nil {
+		return err
+	}
+
+	err = seeds.SeedVacansy(dbConn)
+	if err != nil {
+		return err
+	}
+
+	err = seeds.SeedCourse(dbConn)
+	if err != nil {
+		return err
+	}
+
+	err = seeds.SeedCriteria(dbConn)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -10,6 +10,7 @@ var (
 	ErrInvalidMinPrice          = errors.New("ErrInvalidMinPrice")
 	ErrInvalidMaxPrice          = errors.New("ErrInvalidMaxPrice")
 	ErrInvalidRecommendIDs      = errors.New("ErrInvalidRecommendIDs")
+	ErrInvalidType              = errors.New("ErrInvalidType")
 	ErrInvalidAmount            = errors.New("ErrInvalidAmount")
 	ErrInvalidPrice             = errors.New("ErrInvalidPrice")
 	ErrInsufficientFunds        = errors.New("ErrInsufficientFunds")

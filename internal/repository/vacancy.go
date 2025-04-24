@@ -12,7 +12,7 @@ func GetAllVacancies(search string) (vacancies []models.Vacancy, err error) {
 	if search != "" {
 		// Пример: ищем по title и description
 		likeSearch := "%" + search + "%"
-		query = query.Where("title ILIKE ? OR description ILIKE ?", likeSearch, likeSearch)
+		query = query.Preload("Criteria").Where("title ILIKE ? OR description ILIKE ?", likeSearch, likeSearch)
 	}
 
 	if err = query.Find(&vacancies).Error; err != nil {

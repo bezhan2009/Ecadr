@@ -86,6 +86,7 @@ func GetAnalyseForUserCourse(c *gin.Context) {
 				time.Duration(security.AppSettings.RedisParams.TTLMinutes)*time.Minute,
 			)
 		}
+
 		c.JSON(200, courses)
 		return
 	}

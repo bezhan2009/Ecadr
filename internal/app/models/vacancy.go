@@ -17,6 +17,8 @@ type Vacancy struct {
 	Salary      Salary         `json:"salary" gorm:"embedded;embeddedPrefix:salary_"` // Embedding salary
 	Location    string         `json:"location"`
 	Experience  string         `json:"experience"`
+
+	Criteria []Criteria `json:"criteria" gorm:"foreignkey:VacancyID"`
 }
 
 type Salary struct {

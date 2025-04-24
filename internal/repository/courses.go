@@ -7,7 +7,7 @@ import (
 )
 
 func GetAllCourses(search string) (courses []models.Course, err error) {
-	query := db.GetDBConn()
+	query := db.GetDBConn().Where("deleted_at IS NULL") // исключаем удалённые
 
 	if search != "" {
 		likeSearch := "%" + search + "%"
@@ -34,7 +34,7 @@ func GetAllCourses(search string) (courses []models.Course, err error) {
 }
 
 func GetAllWorkerCourses(workerID uint, search string) (courses []models.Course, err error) {
-	query := db.GetDBConn()
+	query := db.GetDBConn().Where("deleted_at IS NULL") // исключаем удалённые
 
 	if search != "" {
 		likeSearch := "%" + search + "%"
@@ -52,7 +52,7 @@ func GetAllWorkerCourses(workerID uint, search string) (courses []models.Course,
 		`, likeSearch, likeSearch, likeSearch, likeSearch, likeSearch, likeSearch, likeSearch)
 	}
 
-	if err = query.Where("worker_id = ?", workerID).Find(&courses).Error; err != nil {
+	if err = query.Where("worker_id = ? AND deleted_at IS NULL", workerID).Find(&courses).Error; err != nil {
 		logger.Error.Printf("[repository.GetAllWorkerCourses] Error while getting worker courses: %v", err)
 		return []models.Course{}, TranslateGormError(err)
 	}
@@ -61,7 +61,7 @@ func GetAllWorkerCourses(workerID uint, search string) (courses []models.Course,
 }
 
 func GetCourseById(courseId int) (course models.Course, err error) {
-	if err = db.GetDBConn().Model(&models.Course{}).Where("id = ?", courseId).Find(&course).Error; err != nil {
+	if err = db.GetDBConn().Model(&models.Course{}).Where("id = ?", courseId).First(&course).Error; err != nil {
 		logger.Error.Printf("[repository.GetCourseById] error while getting course: %v", err)
 
 		return models.Course{}, TranslateGormError(err)
@@ -81,7 +81,7 @@ func CreateCourse(course models.Course) (id int, err error) {
 }
 
 func UpdateCourse(course models.Course) (err error) {
-	if err = db.GetDBConn().Model(&models.Course{}).Save(&course).Error; err != nil {
+	if err = db.GetDBConn().Model(&models.Course{}).Where("id = ?", course.ID).Save(&course).Error; err != nil {
 		logger.Error.Printf("[repository.UpdateCourse] error while updating course: %v", err)
 
 		return TranslateGormError(err)
@@ -91,7 +91,7 @@ func UpdateCourse(course models.Course) (err error) {
 }
 
 func DeleteCourse(userID, courseID int) (err error) {
-	if err = db.GetDBConn().Model(&models.Course{}).Where("user_id = ?", userID).Delete(&models.Course{}, courseID).Error; err != nil {
+	if err = db.GetDBConn().Model(&models.Course{}).Where("worker_id = ?", userID).Delete(&models.Course{}, courseID).Error; err != nil {
 		logger.Error.Printf("[repository.DeleteCourse] error while deleting course: %v", err)
 
 		return TranslateGormError(err)

@@ -79,7 +79,7 @@ func GetCourseByID(c *gin.Context) {
 // @Router /course [post]
 // @Security ApiKeyAuth
 func CreateCourse(c *gin.Context) {
-	userID := c.GetUint(middlewares.UserRoleIDCtx)
+	userID := c.GetUint(middlewares.UserIDCtx)
 
 	var course models.Course
 	if err := c.ShouldBindJSON(&course); err != nil {
@@ -120,10 +120,11 @@ func CreateCourse(c *gin.Context) {
 // @Router /course/{id} [put]
 // @Security ApiKeyAuth
 func UpdateCourse(c *gin.Context) {
+	userID := c.GetUint(middlewares.UserIDCtx)
 	courseIDStr := c.Param("id")
 	courseID, err := strconv.Atoi(courseIDStr)
 	if err != nil {
-		HandleError(c, errs.ErrInvalidVacancyID)
+		HandleError(c, errs.ErrInvalidCourseID)
 		return
 	}
 
@@ -133,12 +134,15 @@ func UpdateCourse(c *gin.Context) {
 		return
 	}
 
+	course.ID = uint(courseID)
+	course.WorkerID = int(userID)
+
 	if err := validators.ValidateCourse(course); err != nil {
 		HandleError(c, err)
 		return
 	}
 
-	courseID, err = service.UpdateCourse(courseID, course)
+	courseID, err = service.UpdateCourse(course)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -163,6 +167,7 @@ func UpdateCourse(c *gin.Context) {
 // @Router /course/{id} [delete]
 // @Security ApiKeyAuth
 func DeleteCourse(c *gin.Context) {
+	userID := c.GetUint(middlewares.UserIDCtx)
 	courseIDStr := c.Param("id")
 	courseID, err := strconv.Atoi(courseIDStr)
 	if err != nil {
@@ -170,9 +175,7 @@ func DeleteCourse(c *gin.Context) {
 		return
 	}
 
-	userID := c.GetInt(middlewares.UserIDCtx)
-
-	err = service.DeleteCourse(courseID, userID)
+	err = service.DeleteCourse(int(userID), courseID)
 	if err != nil {
 		HandleError(c, err)
 		return

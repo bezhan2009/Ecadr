@@ -7,7 +7,50 @@ import (
 	"Ecadr/pkg/logger"
 	"errors"
 	"gorm.io/gorm"
+	"time"
 )
+
+func GetUsersWithPagination(search string, afterCreatedAt *time.Time, afterID *uint, limit int) (users []models.User, err error) {
+	query := db.GetDBConn().
+		Preload("KindergartenNotes").
+		Preload("SchoolGrades").
+		Preload("Achievements").
+		Preload("TestSubmissions.Answers.Question").
+		Joins("LEFT JOIN roles ON roles.id = users.role_id").
+		Where("users.role_id = ?", 1)
+
+	if search != "" {
+		searchPattern := "%" + search + "%"
+		query = query.Where(`
+			users.username ILIKE ? OR 
+			users.email ILIKE ? OR 
+			users.first_name ILIKE ? OR 
+			users.last_name ILIKE ? OR 
+			roles.name ILIKE ?`,
+			searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
+		)
+	}
+
+	// Keyset pagination
+	if afterCreatedAt != nil && afterID != nil {
+		query = query.Where(`
+			(users.created_at > ?) OR 
+			(users.created_at = ? AND users.id > ?)`,
+			afterCreatedAt, afterCreatedAt, afterID)
+	}
+
+	err = query.
+		Order("users.created_at ASC, users.id ASC").
+		Limit(limit).
+		Find(&users).Error
+
+	if err != nil {
+		logger.Error.Printf("[repository.GetUsersWithPagination] error getting users: %s\n", err.Error())
+		return nil, TranslateGormError(err)
+	}
+
+	return users, nil
+}
 
 func GetAllUsers(search string) (users []models.User, err error) {
 	query := db.GetDBConn().
@@ -15,7 +58,8 @@ func GetAllUsers(search string) (users []models.User, err error) {
 		Preload("SchoolGrades").
 		Preload("Achievements").
 		Preload("TestSubmissions.Answers.Question").
-		Joins("LEFT JOIN roles ON roles.id = users.role_id")
+		Joins("LEFT JOIN roles ON roles.id = users.role_id").
+		Where("users.role_id = ?", 1) // Добавили фильтрацию по role_id
 
 	if search != "" {
 		searchPattern := "%" + search + "%"

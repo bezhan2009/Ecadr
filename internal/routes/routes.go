@@ -6,6 +6,7 @@ import (
 	"Ecadr/internal/controllers/ai"
 	"Ecadr/internal/controllers/middlewares"
 	aiWebSocket "Ecadr/internal/controllers/websockets/ai"
+	"Ecadr/internal/controllers/websockets/pagination"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
@@ -20,9 +21,9 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// usersRoute Маршруты для пользователей (профили)
-	usersRoute := r.Group("/users")
+	usersRoute := r.Group("/users", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker)
 	{
-		usersRoute.GET("", controllers.GetAllUsers)
+		usersRoute.GET("", pagination.UsersWebSocket)
 		usersRoute.GET("/:id", controllers.GetUserByID)
 	}
 
@@ -45,7 +46,7 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 		vacancy.GET("/worker/:worker_id", controllers.GetAllWorkerVacancies)
 	}
 
-	vacancyWorker := r.Group("/vacancy", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker)
+	vacancyWorker := r.Group("/vacancy", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckWorkerVacancy)
 	{
 		vacancyWorker.POST("", controllers.CreateVacancy)
 		vacancyWorker.PATCH("/:id", controllers.UpdateVacancy)
@@ -53,6 +54,17 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 
 		vacancyWorker.GET("/users/:id", ai.GetAnalyseForVacanciesUser)
 		vacancyWorker.POST("/recommends", controllers.CreateRecommendVacancy)
+	}
+
+	// Criteria Маршруты для критерия
+	criteria := vacancy.Group("/criteria")
+	{
+		criteria.GET("/:id", controllers.GetVacancyCriteriaByID)
+		criteria.GET("spec/:id", controllers.GetVacancyByID)
+
+		criteria.POST("", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, controllers.CreateVacancy)
+		criteria.PATCH("/:id", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckWorkerVacancyCriteria, controllers.UpdateVacancy)
+		criteria.DELETE("/:id", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckWorkerVacancyCriteria, controllers.DeleteVacancyByID)
 	}
 
 	// course и courseWorker Маршруты для курсов
@@ -66,9 +78,10 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 	courseWorker := r.Group("/course", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker)
 	{
 		courseWorker.POST("", controllers.CreateCourse)
-		courseWorker.PATCH("/:id", controllers.UpdateCourse)
-		courseWorker.DELETE("/:id", controllers.DeleteCourse)
+		courseWorker.PATCH("/:id", middlewares.CheckWorkerCourse, controllers.UpdateCourse)
+		courseWorker.DELETE("/:id", middlewares.CheckWorkerCourse, controllers.DeleteCourse)
 
+		courseWorker.GET("users/:id", middlewares.CheckWorkerCourse, ai.GetAnalyseForCourseUser)
 		courseWorker.POST("/recommends", controllers.CreateRecommendCourse)
 	}
 

@@ -76,7 +76,7 @@ func SignUp(c *gin.Context) {
 		return
 	}
 
-	accessToken, refreshToken, err := utils2.GenerateToken(userID, user.RoleID, user.Username)
+	accessToken, refreshToken, err := utils2.GenerateToken(user.RoleID, userID, user.Username)
 	if err != nil {
 		logger.Error.Printf("Error generating access token: %s", err)
 		HandleError(c, err)

@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-func getUserVacancyFromRedis(key string) ([]models.User, error) {
+func getUserCourseFromRedis(key string) ([]models.User, error) {
 	UserStr, err := db.GetCache(key)
 	if UserStr != "" {
 		var usersJson []models.User
@@ -32,9 +32,9 @@ func getUserVacancyFromRedis(key string) ([]models.User, error) {
 	return nil, err
 }
 
-// GetAnalyseForVacanciesUser godoc
-// @Summary Анализ для вакансий чтобы искать пользователей
-// @Description Возвращает список рекомендованных пользователей для вакансий
+// GetAnalyseForCourseUser godoc
+// @Summary Анализ для курсов чтобы искать пользователей
+// @Description Возвращает список рекомендованных пользователей для курса
 // @Tags AI
 // @Accept  json
 // @Produce  json
@@ -42,12 +42,12 @@ func getUserVacancyFromRedis(key string) ([]models.User, error) {
 // @Success 201 {object} []models.UserRequest "Рекомендованные пользователи на основе анализа AI"
 // @Failure 400 {object} errs.ErrorResp "Неверный запрос или пользователь не найден"
 // @Failure 500 {object} errs.ErrorResp "Внутренняя ошибка сервера"
-// @Router /vacancy/users/{id} [get]
+// @Router /course/users/{id} [get]
 // @Security ApiKeyAuth
-func GetAnalyseForVacanciesUser(c *gin.Context) {
+func GetAnalyseForCourseUser(c *gin.Context) {
 	search := c.Query("search")
-	vacancyIDStr := c.Param("id")
-	vacancyID, err := strconv.Atoi(vacancyIDStr)
+	courseIDStr := c.Param("id")
+	courseID, err := strconv.Atoi(courseIDStr)
 	if err != nil {
 		controllers.HandleError(c, errs.ErrInvalidID)
 		return
@@ -83,9 +83,9 @@ func GetAnalyseForVacanciesUser(c *gin.Context) {
 		return
 	}
 
-	keyCacheRedis := fmt.Sprintf("analyzed_users_vacancy_%d", vacancyID)
+	keyCacheRedis := fmt.Sprintf("analyzed_users_course_%d", courseID)
 
-	analysedUsersCache, err := getUserVacancyFromRedis(keyCacheRedis)
+	analysedUsersCache, err := getUserCourseFromRedis(keyCacheRedis)
 	if err == nil && len(analysedUsersCache) > 0 {
 		c.JSON(200, analysedUsersCache)
 		return
@@ -97,18 +97,18 @@ func GetAnalyseForVacanciesUser(c *gin.Context) {
 		return
 	}
 
-	vacancy, err := service.GetVacancyByID(vacancyID)
+	course, err := service.GetCourseById(courseID)
 	if err != nil {
 		controllers.HandleError(c, err)
 		return
 	}
 
-	analysedUsers, err := aiSerivce.GetAnalyseForVacanciesUser(
-		vacancy,
+	analysedUsers, err := aiSerivce.GetAnalyseForCourseUser(
+		course,
 		users,
 	)
 	if err != nil {
-		if errors.Is(err, errs.ErrNoVacancyFound) {
+		if errors.Is(err, errs.ErrNoCourseFound) {
 			usersJson, err := json.Marshal(users)
 			if err != nil {
 				logger.Error.Printf("[ai.GetAnalyseForVacanciesUser] Error marshalling analysed users json: %v", err)
