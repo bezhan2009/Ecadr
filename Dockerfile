@@ -13,8 +13,8 @@ RUN go mod download
 # Копируем остальной код проекта
 COPY . .
 
-# Устанавливаем swag
-RUN go install github.com/swaggo/swag/cmd/swag@latest
+# Устанавливаем нужную версию swag
+RUN go install github.com/swaggo/swag/cmd/swag@v1.8.12
 
 # Генерируем swagger-документацию
 RUN swag init
