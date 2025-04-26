@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"Ecadr/internal/app/models"
 	"Ecadr/internal/app/service"
 	"Ecadr/internal/controllers/middlewares"
 	"Ecadr/pkg/logger"
@@ -63,30 +62,4 @@ func GetMyData(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
-}
-
-func CreateUser(c *gin.Context) {
-	var user models.User
-	if err := c.BindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		logger.Error.Printf("[controllers.CreateUser] error: %v\n", err)
-		return
-	}
-
-	_, err := service.CreateUser(user)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
-		logger.Error.Printf("[controllers.CreateUser] error: %v\n", err)
-		return
-	}
-
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "user created successfully",
-	})
-	logger.Info.Printf("[controllers.CreateUser] message successfully\n data %v", user)
-
 }

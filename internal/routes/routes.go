@@ -37,13 +37,25 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 		auth.POST("/refresh", controllers.RefreshToken)
 	}
 
+	// company Маршруты для компаний
+	company := r.Group("/company")
+	{
+		company.GET("/:id", controllers.GetCompanyByID)
+		company.PATCH("/:id",
+			middlewares.CheckUserAuthentication,
+			middlewares.CheckUserWorker,
+			middlewares.CheckWorkerCompany,
+			controllers.UpdateCompany)
+	}
+
 	// vacancy и vacancyWorker Маршруты для вакансий
 	vacancy := r.Group("/vacancy")
 	{
-		vacancy.GET("", middlewares.CheckUserAuthentication,
+		vacancy.GET("",
+			middlewares.CheckUserAuthentication,
 			ai.GetAnalyseForUserVacancies)
 		vacancy.GET("/:id", controllers.GetVacancyByID)
-		vacancy.GET("/worker/:worker_id", controllers.GetAllWorkerVacancies)
+		vacancy.GET("/company/:company_id", controllers.GetAllCompanyVacancies)
 	}
 
 	vacancyWorker := r.Group("/vacancy", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckWorkerVacancy)
@@ -59,18 +71,31 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 	// Criteria Маршруты для критерия
 	criteria := vacancy.Group("/criteria")
 	{
-		criteria.GET("/:id", controllers.GetVacancyCriteriaByID)
-		criteria.GET("spec/:id", controllers.GetVacancyByID)
+		criteria.GET("/:id", controllers.GetVacancyCriteria)
+		criteria.GET("spec/:id", controllers.GetVacancyCriteriaByID)
 
-		criteria.POST("", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, controllers.CreateVacancy)
-		criteria.PATCH("/:id", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckWorkerVacancyCriteria, controllers.UpdateVacancy)
-		criteria.DELETE("/:id", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckWorkerVacancyCriteria, controllers.DeleteVacancyByID)
+		criteria.POST("",
+			middlewares.CheckUserAuthentication,
+			middlewares.CheckUserWorker,
+			controllers.CreateVacancyCriteria)
+		criteria.PATCH("/:id",
+			middlewares.CheckUserAuthentication,
+			middlewares.CheckUserWorker,
+			middlewares.CheckWorkerVacancyCriteria,
+			controllers.UpdateVacancyCriteria)
+		criteria.DELETE("/:id",
+			middlewares.CheckUserAuthentication,
+			middlewares.CheckUserWorker,
+			middlewares.CheckWorkerVacancyCriteria,
+			controllers.DeleteVacancyCriteria)
 	}
 
 	// course и courseWorker Маршруты для курсов
 	course := r.Group("/course")
 	{
-		course.GET("", middlewares.CheckUserAuthentication, ai.GetAnalyseForUserCourse)
+		course.GET("",
+			middlewares.CheckUserAuthentication,
+			ai.GetAnalyseForUserCourse)
 		course.GET("/:id", controllers.GetCourseByID)
 		course.GET("/worker/:worker_id", controllers.GetAllWorkerCourses)
 	}
@@ -78,10 +103,16 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 	courseWorker := r.Group("/course", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker)
 	{
 		courseWorker.POST("", controllers.CreateCourse)
-		courseWorker.PATCH("/:id", middlewares.CheckWorkerCourse, controllers.UpdateCourse)
-		courseWorker.DELETE("/:id", middlewares.CheckWorkerCourse, controllers.DeleteCourse)
+		courseWorker.PATCH("/:id",
+			middlewares.CheckWorkerCourse,
+			controllers.UpdateCourse)
+		courseWorker.DELETE("/:id",
+			middlewares.CheckWorkerCourse,
+			controllers.DeleteCourse)
 
-		courseWorker.GET("users/:id", middlewares.CheckWorkerCourse, ai.GetAnalyseForCourseUser)
+		courseWorker.GET("users/:id",
+			middlewares.CheckWorkerCourse,
+			ai.GetAnalyseForCourseUser)
 		courseWorker.POST("/recommends", controllers.CreateRecommendCourse)
 	}
 
@@ -99,6 +130,13 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 		aiChat.GET("/recommends", ai.GetAIRecommendsForUser)
 
 		aiChat.GET("/chat", aiWebSocket.ChatAIWebSocketHandler)
+	}
+
+	// analyse Маршруты основных анализов для Министерства образования
+	analyse := r.Group("analyse", middlewares.CheckUserAuthentication, middlewares.CheckWorkerDepartment)
+	{
+		analyse.GET("/companies", ai.GetCompaniesStatistic)
+		analyse.GET("/users", ai.GetUsersStatistic)
 	}
 
 	return r

@@ -105,10 +105,9 @@ func CreateRecommendCourse(c *gin.Context) {
 		return
 	}
 
-	recommend.UserID = userID
 	recommend.TargetType = "course"
 
-	err = service.CreateRecommend(recommend)
+	err = service.CreateRecommend(userID, recommend)
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -139,10 +138,9 @@ func CreateRecommendVacancy(c *gin.Context) {
 		return
 	}
 
-	recommend.UserID = userID
 	recommend.TargetType = "vacancy"
 
-	err = service.CreateRecommend(recommend)
+	err = service.CreateRecommend(userID, recommend)
 	if err != nil {
 		HandleError(c, err)
 		return

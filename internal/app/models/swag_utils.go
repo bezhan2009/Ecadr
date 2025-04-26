@@ -33,6 +33,10 @@ type UserRequest struct {
 	LastName  string `json:"last_name"`
 	Password  string `json:"password"`
 	RoleID    uint   `json:"role_id"`
+
+	TitleCompany       string   `json:"title_company"`
+	DescriptionCompany string   `json:"description_company"`
+	Criteria           []string `json:"criteria"`
 }
 
 type UserLogin struct {

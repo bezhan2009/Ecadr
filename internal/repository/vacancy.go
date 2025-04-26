@@ -7,16 +7,16 @@ import (
 )
 
 func GetAllVacancies(search string) (vacancies []models.Vacancy, err error) {
-	query := db.GetDBConn()
+	query := db.GetDBConn().Preload("Company").Preload("Criteria")
 
 	if search != "" {
-		// Пример: ищем по title и description
 		likeSearch := "%" + search + "%"
-		query = query.Preload("Criteria").Where("title ILIKE ? OR description ILIKE ?", likeSearch, likeSearch)
+		query = query.Where("title ILIKE ? OR description ILIKE ?", likeSearch, likeSearch)
 	}
 
 	if err = query.Find(&vacancies).Error; err != nil {
 		logger.Error.Printf("[repository.GetAllVacancies] Err while getting vacancies: %v", err)
+
 		return nil, TranslateGormError(err)
 	}
 
@@ -24,7 +24,7 @@ func GetAllVacancies(search string) (vacancies []models.Vacancy, err error) {
 }
 
 func GetAllWorkerVacancies(workerID uint, search string) (vacancies []models.Vacancy, err error) {
-	query := db.GetDBConn()
+	query := db.GetDBConn().Preload("Company").Preload("Criteria")
 
 	if search != "" {
 		// Пример: ищем по title и description
@@ -41,7 +41,7 @@ func GetAllWorkerVacancies(workerID uint, search string) (vacancies []models.Vac
 }
 
 func GetVacancyById(vacancyId int) (vacancy models.Vacancy, err error) {
-	if err = db.GetDBConn().Where("id = ?", vacancyId).First(&vacancy).Error; err != nil {
+	if err = db.GetDBConn().Preload("Company").Preload("Criteria").Where("id = ?", vacancyId).First(&vacancy).Error; err != nil {
 		logger.Error.Printf("[repository.GetVacancyById] Err while getting vacancy: %v", err)
 
 		return models.Vacancy{}, TranslateGormError(err)
@@ -61,7 +61,7 @@ func CreateVacancy(vacancy models.Vacancy) (uint, error) {
 }
 
 func UpdateVacancy(vacancy models.Vacancy) (err error) {
-	if err = db.GetDBConn().Save(&vacancy).Error; err != nil {
+	if err = db.GetDBConn().Updates(&vacancy).Error; err != nil {
 		logger.Error.Printf("[repository.UpdateVacancy] Err while updating vacancy: %v", err)
 
 		return TranslateGormError(err)

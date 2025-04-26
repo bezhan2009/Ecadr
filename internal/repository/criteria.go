@@ -7,7 +7,7 @@ import (
 )
 
 func GetVacancyCriteria(vacancyID uint) (criteria []models.Criteria, err error) {
-	if err = db.GetDBConn().Model(&models.Criteria{}).Find(&criteria, vacancyID).Error; err != nil {
+	if err = db.GetDBConn().Model(&models.Criteria{}).Where("vacancy_id = ?", vacancyID).Find(&criteria).Error; err != nil {
 		logger.Error.Printf("[repository.GetVacancyCriteria] Error while getting vacancy criteria: %v", err)
 
 		return criteria, TranslateGormError(err)
@@ -26,6 +26,16 @@ func GetVacancyCriteriaByID(criteriaID uint) (criteria models.Criteria, err erro
 	return criteria, nil
 }
 
+func GetVacancyCriteriaByTitleAndVacancyID(title string, vacancyID uint) (criteria models.Criteria, err error) {
+	if err = db.GetDBConn().Model(&models.Criteria{}).Where("title = ? AND vacancy_id = ?", title, vacancyID).First(&criteria).Error; err != nil {
+		logger.Error.Printf("[repository.GetVacancyCriteriaByTitleAndVacancyID] Error while getting vacancy criteria: %v", err)
+
+		return criteria, TranslateGormError(err)
+	}
+
+	return criteria, nil
+}
+
 func CreateVacancyCriteria(criteria models.Criteria) (err error) {
 	if err = db.GetDBConn().Model(&models.Criteria{}).Create(&criteria).Error; err != nil {
 		logger.Error.Printf("[repository.CreateVacancyCriteria] Error while creating vacancy criteria: %v", err)
@@ -37,7 +47,7 @@ func CreateVacancyCriteria(criteria models.Criteria) (err error) {
 }
 
 func UpdateVacancyCriteria(criteria models.Criteria) (err error) {
-	if err = db.GetDBConn().Model(&models.Criteria{}).Save(&criteria).Error; err != nil {
+	if err = db.GetDBConn().Model(&models.Criteria{}).Where("id = ?", criteria.ID).Updates(&criteria).Error; err != nil {
 		logger.Error.Printf("[repository.UpdateVacancyCriteria] Error while creating vacancy criteria: %v", err)
 
 		return TranslateGormError(err)

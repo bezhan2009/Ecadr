@@ -81,7 +81,7 @@ func CreateCourse(course models.Course) (id int, err error) {
 }
 
 func UpdateCourse(course models.Course) (err error) {
-	if err = db.GetDBConn().Model(&models.Course{}).Where("id = ?", course.ID).Save(&course).Error; err != nil {
+	if err = db.GetDBConn().Model(&models.Course{}).Where("id = ?", course.ID).Updates(&course).Error; err != nil {
 		logger.Error.Printf("[repository.UpdateCourse] error while updating course: %v", err)
 
 		return TranslateGormError(err)

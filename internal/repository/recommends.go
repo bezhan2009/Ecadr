@@ -18,7 +18,7 @@ func GetUserRecommendation(userID uint) (recommends []models.Recommend, err erro
 }
 
 func GetUserRecommendationCourse(userID uint) (recommends []models.Recommend, err error) {
-	if err = db.GetDBConn().Model(&models.Recommend{}).Where("user_id = ? AND course_id != 0", userID).First(&recommends).Error; err != nil {
+	if err = db.GetDBConn().Model(&models.Recommend{}).Where("user_id = ? AND target_type = ?", userID, "course").First(&recommends).Error; err != nil {
 		logger.Error.Printf("[repository.GetUserRecommendation] Error while getting user recommends: %v", err)
 
 		return recommends, TranslateGormError(err)
@@ -28,7 +28,7 @@ func GetUserRecommendationCourse(userID uint) (recommends []models.Recommend, er
 }
 
 func GetUserRecommendationVacancy(userID uint) (recommends []models.Recommend, err error) {
-	if err = db.GetDBConn().Model(&models.Recommend{}).Where("user_id = ?", userID).First(&recommends).Error; err != nil {
+	if err = db.GetDBConn().Model(&models.Recommend{}).Where("user_id = ? AND target_type = ?", userID, "vacancy").First(&recommends).Error; err != nil {
 		logger.Error.Printf("[repository.GetUserRecommendation] Error while getting user recommends: %v", err)
 
 		return recommends, TranslateGormError(err)

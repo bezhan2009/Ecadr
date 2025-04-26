@@ -20,9 +20,6 @@ type User struct {
 	SchoolGrades      []SchoolGrade      `gorm:"foreignKey:UserID"`
 	Achievements      []Achievement      `gorm:"foreignKey:UserID"`
 	TestSubmissions   []TestSubmission   `gorm:"foreignKey:UserID"`
-	//BirthDate time.Time
-	//PassportNumber string
-	//Phone          string
 }
 
 type Role struct {

@@ -11,7 +11,7 @@ import (
 	"strconv"
 )
 
-// GetAllWorkerVacancies godoc
+// GetAllCompanyVacancies godoc
 // @Summary Получить все воркера вакансии
 // @Description Возвращает список всех вакансий воркера с возможностью поиска
 // @Tags Vacancies
@@ -20,17 +20,23 @@ import (
 // @Param search query string false "Поисковый запрос"
 // @Success 200 {object} models.VacancyResponse "Вакансия"
 // @Failure 500 {object} errs.ErrorResp
-// @Router /vacancy/worker/{worker_id} [get]
-func GetAllWorkerVacancies(c *gin.Context) {
+// @Router /vacancy/company/{company_id} [get]
+func GetAllCompanyVacancies(c *gin.Context) {
 	search := c.Query("search")
-	workerStrID := c.Param("worker_id")
-	workerID, err := strconv.Atoi(workerStrID)
+	companyStrID := c.Param("company_id")
+	companyID, err := strconv.Atoi(companyStrID)
 	if err != nil {
 		HandleError(c, errs.ErrInvalidID)
 		return
 	}
 
-	vacancies, err := service.GetAllWorkerVacancies(uint(workerID), search)
+	company, err := service.GetCompanyByID(uint(companyID))
+	if err != nil {
+		HandleError(c, errs.ErrInvalidID)
+		return
+	}
+
+	vacancies, err := service.GetAllWorkerVacancies(company.WorkerID, search)
 	if err != nil {
 		HandleError(c, err)
 		return

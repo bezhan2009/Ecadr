@@ -4,6 +4,7 @@ import (
 	"Ecadr/internal/app/models"
 	"Ecadr/internal/app/service/validators"
 	"Ecadr/internal/repository"
+	"Ecadr/pkg/errs"
 )
 
 func GetUserRecommends(userID uint) (recommends []models.Recommend, err error) {
@@ -42,15 +43,28 @@ func GetUserRecommendByID(recommendID, userID uint) (recommend *models.Recommend
 	return recommend, nil
 }
 
-func CreateRecommend(recommends models.Recommend) (err error) {
+func CreateRecommend(userID uint, recommends models.Recommend) (err error) {
 	if err = validators.ValidateRecommend(recommends); err != nil {
 		return err
 	}
 
 	if recommends.TargetType == "vacancy" {
-		_, err = GetVacancyByID(int(recommends.TargetID))
+		vac, err := GetVacancyByID(int(recommends.TargetID))
 		if err != nil {
 			return err
+		}
+
+		if uint(vac.WorkerID) != userID {
+			return errs.ErrRecordNotFound
+		}
+	} else if recommends.TargetType == "course" {
+		course, err := GetCourseById(int(recommends.TargetID))
+		if err != nil {
+			return err
+		}
+
+		if uint(course.WorkerID) != userID {
+			return errs.ErrRecordNotFound
 		}
 	}
 

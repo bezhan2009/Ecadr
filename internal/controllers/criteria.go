@@ -34,7 +34,7 @@ func GetVacancyCriteriaByID(c *gin.Context) {
 		return
 	}
 
-	criteria, err := service.GetVacancyCriteriaByID(uint(criteriaID))
+	criteria, err := service.GetVacancyCriteria(uint(criteriaID))
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -56,7 +56,7 @@ func CreateVacancyCriteria(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, criteria)
+	c.JSON(http.StatusOK, gin.H{"message": "criteria created successfully"})
 }
 
 func UpdateVacancyCriteria(c *gin.Context) {
@@ -81,7 +81,7 @@ func UpdateVacancyCriteria(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, criteria)
+	c.JSON(http.StatusOK, gin.H{"message": "Updated criteria successfully"})
 }
 
 func DeleteVacancyCriteria(c *gin.Context) {

@@ -20,17 +20,23 @@ import (
 // @Success 200 {object} models.CourseResponse
 // @Failure 400 {object} errs.ErrorResp
 // @Failure 404 {object} errs.ErrorResp
-// @Router /course/worker/{worker_id} [get]
+// @Router /course/company/{company_id} [get]
 func GetAllWorkerCourses(c *gin.Context) {
 	search := c.Query("search")
-	workerIDStr := c.Param("worker_id")
-	workerID, convErr := strconv.Atoi(workerIDStr)
+	companyIDStr := c.Param("company_id")
+	companyID, convErr := strconv.Atoi(companyIDStr)
 	if convErr != nil {
 		HandleError(c, errs.ErrInvalidID)
 		return
 	}
 
-	courses, err := service.GetAllWorkerCourses(uint(workerID), search)
+	company, err := service.GetCompanyByID(uint(companyID))
+	if err != nil {
+		HandleError(c, errs.ErrInvalidID)
+		return
+	}
+
+	courses, err := service.GetAllWorkerCourses(company.WorkerID, search)
 	if err != nil {
 		HandleError(c, err)
 		return

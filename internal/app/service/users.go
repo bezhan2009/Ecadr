@@ -3,6 +3,7 @@ package service
 import (
 	"Ecadr/internal/app/models"
 	redisService "Ecadr/internal/app/service/redis"
+	"Ecadr/internal/app/service/validators"
 	"Ecadr/internal/repository"
 	"Ecadr/pkg/errs"
 	"Ecadr/pkg/logger"
@@ -39,7 +40,7 @@ func GetUserByID(id uint) (user models.User, err error) {
 	return user, nil
 }
 
-func CreateUser(user models.User) (uint, error) {
+func CreateUser(user models.User, company models.Company) (uint, error) {
 	usernameExists, emailExists, err := repository.UserExists(user.Username, user.Email)
 	if err != nil {
 		return 0, fmt.Errorf("failed to check existing user: %w", err)
@@ -60,11 +61,17 @@ func CreateUser(user models.User) (uint, error) {
 		return 0, errs.ErrEmailUniquenessFailed
 	}
 
+	if user.RoleID == 3 {
+		if err = validators.ValidateCompany(company); err != nil {
+			return 0, err
+		}
+	}
+
 	user.Password = utils.GenerateHash(user.Password)
 
 	var userDB models.User
 
-	if userDB, err = repository.CreateUser(user); err != nil {
+	if userDB, err = repository.CreateUser(user, company); err != nil {
 		return 0, fmt.Errorf("failed to create user: %w", err)
 	}
 

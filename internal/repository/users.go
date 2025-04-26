@@ -130,14 +130,29 @@ func UserExists(username, email string) (bool, bool, error) {
 	return usernameExists, emailExists, nil
 }
 
-func CreateUser(user models.User) (userDB models.User, err error) {
-	//logger.Debug.Println(user.ID)
-	if err = db.GetDBConn().Create(&user).Error; err != nil {
+func CreateUser(user models.User, company models.Company) (userDB models.User, err error) {
+	tx := db.GetDBConn().Begin()
+
+	if err = tx.Create(&user).Error; err != nil {
+		tx.Rollback()
 		logger.Error.Printf("[repository.CreateUser] error creating user: %v\n", err)
 		return userDB, TranslateGormError(err)
 	}
 
-	//logger.Debug.Println(user.ID)
+	if user.RoleID == 3 {
+		company.WorkerID = user.ID
+		if err = tx.Create(&company).Error; err != nil {
+			tx.Rollback()
+			logger.Error.Printf("[repository.CreateUser] error creating company: %v\n", err)
+			return userDB, TranslateGormError(err)
+		}
+	}
+
+	if err = tx.Commit().Error; err != nil {
+		logger.Error.Printf("[repository.CreateUser] error committing user: %v\n", err)
+		return userDB, TranslateGormError(err)
+	}
+
 	userDB = user
 	return userDB, nil
 }
@@ -170,4 +185,13 @@ func GetUserByEmailPasswordAndUsername(username, email, password string) (user m
 	}
 
 	return user, nil
+}
+
+func DeleteUserByID(userID uint) (err error) {
+	if err = db.GetDBConn().Model(&models.User{}).Delete(&models.User{}, userID).Error; err != nil {
+		logger.Error.Printf("[repository.DeleteUserByID] error deleting user: %v\n", err)
+		return TranslateGormError(err)
+	}
+
+	return nil
 }

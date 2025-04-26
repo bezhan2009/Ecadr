@@ -59,14 +59,21 @@ func SignUp(c *gin.Context) {
 		return
 	}
 
-	userID, err := service.CreateUser(models.User{
-		Username:  user.Username,
-		Email:     user.Email,
-		Password:  user.Password,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		RoleID:    int(user.RoleID),
-	})
+	userID, err := service.CreateUser(
+		models.User{
+			Username:  user.Username,
+			Email:     user.Email,
+			Password:  user.Password,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			RoleID:    int(user.RoleID),
+		},
+		models.Company{
+			Title:       user.TitleCompany,
+			Description: user.DescriptionCompany,
+			Criteria:    user.Criteria,
+		},
+	)
 	if err != nil {
 		if errors.Is(err, errs.ErrRecordNotFound) {
 			HandleError(c, errs.ErrIncorrectUsernameOrPassword)

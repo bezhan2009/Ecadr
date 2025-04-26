@@ -3,6 +3,7 @@ package service
 import (
 	"Ecadr/internal/app/models"
 	"Ecadr/internal/repository"
+	"Ecadr/pkg/errs"
 )
 
 func GetVacancyCriteria(vacancyID uint) (criteria []models.Criteria, err error) {
@@ -24,6 +25,20 @@ func GetVacancyCriteriaByID(criteriaID uint) (criteria models.Criteria, err erro
 }
 
 func CreateCriteria(criteria models.Criteria) (err error) {
+	if criteria.Title == "" {
+		return errs.ErrInvalidTitle
+	}
+
+	_, err = repository.GetVacancyById(int(criteria.VacancyID))
+	if err != nil {
+		return err
+	}
+
+	_, err = repository.GetVacancyCriteriaByTitleAndVacancyID(criteria.Title, criteria.VacancyID)
+	if err == nil {
+		return errs.ErrAlreadyExists
+	}
+
 	err = repository.CreateVacancyCriteria(criteria)
 	if err != nil {
 		return err

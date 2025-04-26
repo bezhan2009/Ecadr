@@ -33,6 +33,7 @@ func Migrate() error {
 	err := dbConn.AutoMigrate(
 		&models2.Role{},
 		&models2.User{},
+		&models2.Company{},
 		&models2.Achievement{},
 		&models2.SchoolGrade{},
 		&models2.KindergartenNote{},
@@ -63,6 +64,11 @@ func Migrate() error {
 		return err
 	}
 
+	err = seeds.SeedCompany(dbConn)
+	if err != nil {
+		return err
+	}
+
 	err = seeds.SeedKinderGarten(dbConn)
 	if err != nil {
 		return err
@@ -78,7 +84,7 @@ func Migrate() error {
 		return err
 	}
 
-	err = seeds.SeedVacansy(dbConn)
+	err = seeds.SeedVacancy(dbConn)
 	if err != nil {
 		return err
 	}

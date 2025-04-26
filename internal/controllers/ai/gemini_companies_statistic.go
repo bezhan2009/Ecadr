@@ -1,0 +1,67 @@
+package ai
+
+import (
+	"Ecadr/internal/app/models"
+	"Ecadr/internal/app/service"
+	aiService "Ecadr/internal/app/service/ai"
+	"Ecadr/internal/controllers"
+	"Ecadr/internal/security"
+	"Ecadr/pkg/db"
+	"Ecadr/pkg/logger"
+	"encoding/json"
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"time"
+)
+
+func getAnalysedDataCompaniesFromRedis(key string) ([]models.CompanyStatistic, error) {
+	analysedDataStr, err := db.GetCache(key)
+	if analysedDataStr != "" {
+		var analysedDataJson []models.CompanyStatistic
+		err = json.Unmarshal([]byte(analysedDataStr), &analysedDataJson)
+		if err != nil {
+			db.DeleteCache(key)
+		} else {
+			return analysedDataJson, nil
+		}
+	}
+
+	return nil, err
+}
+
+func GetCompaniesStatistic(c *gin.Context) {
+	companiesInfo, err := service.GetCompaniesProducts()
+	if err != nil {
+		controllers.HandleError(c, err)
+		return
+	}
+
+	keyCacheRedis := "analyzed_companies"
+
+	analysedCompaniesCache, err := getAnalysedDataCompaniesFromRedis(keyCacheRedis)
+	if err == nil && len(analysedCompaniesCache) > 0 {
+		c.JSON(http.StatusOK, analysedCompaniesCache)
+		return
+	}
+
+	analysedData, err := aiService.GetCompaniesStatistic(
+		companiesInfo,
+	)
+	if err != nil {
+		controllers.HandleError(c, err)
+		return
+	}
+
+	analysedDataJson, err := json.Marshal(analysedData)
+	if err != nil {
+		logger.Error.Printf("[ai.GetCompaniesStatistic] Error marshalling analysed vacancies json: %v", err)
+	} else {
+		db.SetCache(
+			keyCacheRedis,
+			analysedDataJson,
+			time.Duration(security.AppSettings.RedisParams.TTLMinutes)*time.Minute,
+		)
+	}
+
+	c.JSON(http.StatusCreated, analysedData)
+}

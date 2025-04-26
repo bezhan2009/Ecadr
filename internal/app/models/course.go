@@ -15,6 +15,8 @@ type Course struct {
 	Tags        pq.StringArray `json:"tags" gorm:"type:text[]"`
 	WorkerID    int            `json:"worker_id" gorm:"not null"`
 	Worker      User           `json:"-" gorm:"foreignkey:WorkerID"`
+	CompanyID   int            `json:"company_id" gorm:"not null"`
+	Company     Company        `json:"-" gorm:"foreignkey:CompanyID"`
 	StartDate   time.Time      `json:"start_date" gorm:"type:date;"`
 	EndDate     time.Time      `json:"end_date" gorm:"type:date;"`
 }

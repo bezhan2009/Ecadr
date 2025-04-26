@@ -11,8 +11,8 @@ import (
 	"net/http"
 )
 
-func SeedVacancy(db *gorm.DB) error {
-	url := "https://bf06c50f7c3aa09d.mokky.dev/vacancy"
+func SeedCompany(db *gorm.DB) error {
+	url := "https://bf06c50f7c3aa09d.mokky.dev/company"
 
 	response, err := http.Get(url)
 	if err != nil {
@@ -25,26 +25,26 @@ func SeedVacancy(db *gorm.DB) error {
 		log.Fatalf("Ошибка при чтении ответа: %v", err)
 	}
 
-	var vacancies []models.Vacancy
-	if err := json.Unmarshal(body, &vacancies); err != nil {
+	var companies []models.Company
+	if err := json.Unmarshal(body, &companies); err != nil {
 		log.Fatalf("Ошибка при декодировании JSON: %v", err)
 	}
 
-	IdVac := 1
-
-	for _, vacancy := range vacancies {
-		var existingVacancy models.Vacancy
-		if err := db.First(&existingVacancy, "id = ?", IdVac).Error; err != nil {
+	for _, company := range companies {
+		var existingCompany models.Company
+		if err := db.First(&existingCompany, "title = ?", company.Title).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				db.Create(&vacancy)
+				db.Create(&models.Company{
+					WorkerID:    company.WorkerID,
+					Title:       company.Title,
+					Description: company.Description,
+				})
 			} else {
-				logger.Error.Printf("[seeds.SeedVacancy] Error seeding vacancies: %v", err)
+				logger.Error.Printf("[seeds.SeedCompany] Error seeding companies: %v", err)
 
 				return err
 			}
 		}
-
-		IdVac++
 	}
 
 	return nil
