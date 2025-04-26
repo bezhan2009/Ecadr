@@ -20,13 +20,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 // @title Ecadr API
 // @version 1.0.0
 
 // @description API Server for Ecadr Application
-// @host localhost:6565
+// @host 89.169.38.40:6565
 // @BasePath /
 
 // @securityDefinitions.apikey ApiKeyAuth
@@ -58,7 +59,11 @@ func main() {
 
 	err = db.ConnectToDB()
 	if err != nil {
-		panic(err)
+		time.Sleep(10 * time.Second)
+		err = db.ConnectToDB()
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	err = db.Migrate()

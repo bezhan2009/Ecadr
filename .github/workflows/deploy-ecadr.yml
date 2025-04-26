@@ -1,0 +1,61 @@
+name: Deploy Ecadr to VPS
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y rsync
+
+      - name: Check VPS and Prepare Folders
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            mkdir -p ~/Ecadr/uploads
+            if [ ! -f ~/Ecadr/.env ]; then
+              echo ".env не найден в ~/Ecadr. Создай его вручную."; 
+              exit 1; 
+            fi
+          EOF
+
+      - name: Rsync project to VPS (excluding .git, .env и uploads)
+        run: |
+          rsync -avz \
+            --exclude='.git' \
+            --exclude='.env' \
+            --exclude='uploads' \
+            -e "ssh -o StrictHostKeyChecking=no" ./ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/Ecadr
+
+      - name: Build and Deploy Docker on VPS
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            cd ~/Ecadr
+            docker-compose --env-file .env down
+            docker image prune -a -f
+            docker-compose --env-file .env up -d --build
+          EOF

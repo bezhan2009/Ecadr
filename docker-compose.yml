@@ -29,8 +29,9 @@ services:
       POSTGRES_DB: ecadr_db
     volumes:
       - pgdata:/var/lib/postgresql/data
+    command: ["postgres", "-c", "port=5433"]
     ports:
-      - "5432:5432"
+      - "5433:5433"
     networks:
       - ECadrNetwork
 
