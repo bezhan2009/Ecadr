@@ -28,7 +28,7 @@ FROM ubuntu:latest
 # Устанавливаем необходимые зависимости
 RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем рабочую директорию
+# Устанавливаем рабочую директорию.
 WORKDIR /root/
 
 # Создаем директорию для хранения конфигов
