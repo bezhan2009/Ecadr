@@ -13,6 +13,12 @@ RUN go mod download
 # Копируем остальной код проекта
 COPY . .
 
+# Устанавливаем swag
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
+# Генерируем swagger-документацию
+RUN swag init
+
 # Собираем бинарный файл
 RUN go build -o main main.go
 
@@ -38,6 +44,9 @@ COPY --from=builder /app/configs/docker/example.json ./configs
 # Копируем переменные окружения
 COPY --from=builder /app/.env .
 COPY --from=builder /app/example.env .
+
+# Если Swagger-файлы нужны на runtime, их тоже можно скопировать (опционально):
+# COPY --from=builder /app/docs ./docs
 
 # Открываем порт
 EXPOSE 6565
