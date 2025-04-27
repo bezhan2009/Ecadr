@@ -123,7 +123,7 @@ func CreateCourse(c *gin.Context) {
 // @Success 200 {object} models.CourseReq "Успешное сообщение и ID"
 // @Failure 400 {object} errs.ErrorResp
 // @Failure 500 {object} errs.ErrorResp
-// @Router /course/{id} [put]
+// @Router /course/{id} [patch]
 // @Security ApiKeyAuth
 func UpdateCourse(c *gin.Context) {
 	userID := c.GetUint(middlewares.UserIDCtx)
