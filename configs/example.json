@@ -26,7 +26,7 @@
   },
   "redis_params": {
     "host": "",
-    "port": 6379,
+    "port": 0,
     "password": "",
     "db": 0
   },
