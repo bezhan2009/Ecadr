@@ -27,7 +27,6 @@ import (
 // @version 1.0.0
 
 // @description API Server for Ecadr Application
-// @host 89.169.38.40:6565
 // @BasePath /
 
 // @securityDefinitions.apikey ApiKeyAuth

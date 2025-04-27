@@ -171,3 +171,12 @@ type RecommendReq struct {
 	Message     string `json:"message"`
 	RecommendID uint   `json:"recommend_id"`
 }
+
+type CriteriaReq struct {
+	Title     string `json:"title"`
+	VacancyID uint   `json:"vacancy_id"`
+}
+
+type CriteriaResp struct {
+	Message string `json:"message"`
+}

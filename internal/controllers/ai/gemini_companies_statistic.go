@@ -29,6 +29,16 @@ func getAnalysedDataCompaniesFromRedis(key string) ([]models.CompanyStatistic, e
 	return nil, err
 }
 
+// GetCompaniesStatistic godoc
+// @Summary Статистика компаний
+// @Description Возвращает статистику компаний учитывая все их продукты(вакансий, курсы и тд)
+// @Tags AI
+// @Accept  json
+// @Produce  json
+// @Failure 400 {object} errs.ErrorResp "Неверный запрос"
+// @Failure 500 {object} errs.ErrorResp "Внутренняя ошибка сервера"
+// @Router /analyse/companies [get]
+// @Security ApiKeyAuth
 func GetCompaniesStatistic(c *gin.Context) {
 	companiesInfo, err := service.GetCompaniesProducts()
 	if err != nil {

@@ -29,6 +29,17 @@ func getAnalysedDataUsersFromRedis(key string) ([]models.UsersStatistic, error) 
 	return nil, err
 }
 
+// GetUsersStatistic godoc
+// @Summary Статистика пользователей
+// @Description Возвращает статистику пользователей
+// @Tags AI
+// @Accept  json
+// @Produce  json
+// @Success 201 {object} []models.UsersStatistic "Сама статистика от сервиса и ИИ"
+// @Failure 400 {object} errs.ErrorResp "Неверный запрос"
+// @Failure 500 {object} errs.ErrorResp "Внутренняя ошибка сервера"
+// @Router /analyse/users [get]
+// @Security ApiKeyAuth
 func GetUsersStatistic(c *gin.Context) {
 	usersInfo, err := service.GetAllUsers("")
 	if err != nil {
