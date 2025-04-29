@@ -4,14 +4,12 @@ import (
 	"Ecadr/internal/app/models"
 	"Ecadr/internal/app/service"
 	aiSerivce "Ecadr/internal/app/service/ai"
-	"Ecadr/internal/controllers"
 	"Ecadr/internal/controllers/middlewares"
 	"Ecadr/internal/security"
 	"Ecadr/pkg/db"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"time"
 )
 
@@ -41,21 +39,21 @@ func getAIRecommendsFromRedis(key string) ([]models.AiUserRecommends, error) {
 // @Failure 500 {object} errs.ErrorResp "Внутренняя ошибка сервера"
 // @Router /ai/recommends [get]
 // @Security ApiKeyAuth
-func GetAIRecommendsForUser(c *gin.Context) {
+func GetAIRecommendsForUser(c *gin.Context) (interface{}, error) {
 	userID := c.GetUint(middlewares.UserIDCtx)
 
 	user, err := service.GetUserByID(userID)
 	if err != nil {
-		controllers.HandleError(c, err)
-		return
+		//controllers.HandleError(c, err)
+		return nil, err
 	}
 
 	keyCacheAIRecs := fmt.Sprintf("ai_recs:%d", userID)
 
 	aiRecommendsFromRedis, err := getAIRecommendsFromRedis(keyCacheAIRecs)
 	if err == nil && len(aiRecommendsFromRedis) > 0 {
-		c.JSON(http.StatusOK, aiRecommendsFromRedis)
-		return
+		//c.JSON(http.StatusOK, aiRecommendsFromRedis)
+		return aiRecommendsFromRedis, nil
 	}
 
 	aiRecommends, err := aiSerivce.GetRecommendsForUser(
@@ -64,8 +62,8 @@ func GetAIRecommendsForUser(c *gin.Context) {
 		user.Achievements,
 	)
 	if err != nil {
-		controllers.HandleError(c, err)
-		return
+		//controllers.HandleError(c, err)
+		return nil, err
 	}
 
 	aiRecommendsJson, err := json.Marshal(aiRecommends)
@@ -77,5 +75,6 @@ func GetAIRecommendsForUser(c *gin.Context) {
 		)
 	}
 
-	c.JSON(http.StatusCreated, aiRecommends)
+	//c.JSON(http.StatusCreated, aiRecommends)
+	return aiRecommends, nil
 }

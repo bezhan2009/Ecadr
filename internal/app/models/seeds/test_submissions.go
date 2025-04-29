@@ -11,8 +11,8 @@ import (
 	"net/http"
 )
 
-func SeedTests(db *gorm.DB) error {
-	url := "https://bf06c50f7c3aa09d.mokky.dev/tests"
+func SeedTestSubmissions(db *gorm.DB) error {
+	url := "https://bf06c50f7c3aa09d.mokky.dev/test_submissions"
 
 	// Отправьте GET-запрос
 	response, err := http.Get(url)
@@ -27,7 +27,7 @@ func SeedTests(db *gorm.DB) error {
 		log.Fatalf("Ошибка при чтении ответа: %v", err)
 	}
 
-	var tests []models.Test
+	var tests []models.TestSubmission
 	if err := json.Unmarshal(body, &tests); err != nil {
 		log.Fatalf("Ошибка при декодировании JSON: %v", err)
 	}
@@ -35,12 +35,12 @@ func SeedTests(db *gorm.DB) error {
 	IdTest := 1
 
 	for _, test := range tests {
-		var existingTest models.Test
+		var existingTest models.TestSubmission
 		if err := db.First(&existingTest, "id = ?", IdTest).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				db.Create(&test)
 			} else {
-				logger.Error.Printf("[seeds.SeedTests] Error seeding tests: %v", err)
+				logger.Error.Printf("[seeds.SeedTestSubmissions] Error seeding tests: %v", err)
 
 				return err
 			}

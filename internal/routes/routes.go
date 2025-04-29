@@ -12,24 +12,26 @@ import (
 	"github.com/swaggo/gin-swagger"
 )
 
+// InitRoutes — настраиваем HTTP-маршруты
 func InitRoutes(r *gin.Engine) *gin.Engine {
-	pingRoute := r.Group("/ping")
-	{
-		pingRoute.GET("/", controllers.Ping)
-	}
+	// Health-check
+	r.GET("/ping", controllers.Ping)
 
+	// Swagger UI
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// usersRoute Маршруты для пользователей (профили)
-	usersRoute := r.Group("/users", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker)
+	// Пользователи
+	users := r.Group("/users",
+		middlewares.CheckUserAuthentication,
+		middlewares.CheckUserWorker,
+	)
 	{
-		usersRoute.GET("", pagination.UsersWebSocket)
-		usersRoute.GET("/:id", controllers.GetUserByID)
+		users.GET("", pagination.UsersWebSocket)
+		users.GET("/:id", controllers.GetUserByID)
 	}
+	r.GET("/user", middlewares.CheckUserAuthentication, controllers.GetMyData)
 
-	r.GET("user", middlewares.CheckUserAuthentication, controllers.GetMyData)
-
-	// auth Маршруты для авторизаций
+	// Auth
 	auth := r.Group("/auth")
 	{
 		auth.POST("/sign-up", controllers.SignUp)
@@ -37,7 +39,7 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 		auth.POST("/refresh", controllers.RefreshToken)
 	}
 
-	// company Маршруты для компаний
+	// Компания
 	company := r.Group("/company")
 	{
 		company.GET("/:id", controllers.GetCompanyByID)
@@ -45,78 +47,88 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 			middlewares.CheckUserAuthentication,
 			middlewares.CheckUserWorker,
 			middlewares.CheckWorkerCompany,
-			controllers.UpdateCompany)
+			controllers.UpdateCompany,
+		)
 	}
 
-	// vacancy и vacancyWorker Маршруты для вакансий
+	// Вакансии
 	vacancy := r.Group("/vacancy")
 	{
 		vacancy.GET("",
 			middlewares.CheckUserAuthentication,
-			ai.GetAnalyseForUserVacancies)
+			func(c *gin.Context) {
+				runHeavyTask(c, ai.GetAnalyseForUserVacancies)
+			},
+		)
 		vacancy.GET("/:id", controllers.GetVacancyByID)
 		vacancy.GET("/company/:company_id", controllers.GetAllCompanyVacancies)
 	}
 
-	vacancyWorker := r.Group("/vacancy", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckWorkerVacancy)
+	// Вакансии (worker)
+	vacancyWorker := r.Group("/vacancy",
+		middlewares.CheckUserAuthentication,
+		middlewares.CheckUserWorker,
+		middlewares.CheckWorkerVacancy,
+	)
 	{
 		vacancyWorker.POST("", controllers.CreateVacancy)
 		vacancyWorker.PATCH("/:id", controllers.UpdateVacancy)
 		vacancyWorker.DELETE("/:id", controllers.DeleteVacancyByID)
-
 		vacancyWorker.GET("/users/:id", ai.GetAnalyseForVacanciesUser)
 		vacancyWorker.POST("/recommends", controllers.CreateRecommendVacancy)
 	}
 
-	// Criteria Маршруты для критерия
+	// Критерии вакансий
 	criteria := vacancy.Group("/criteria")
 	{
 		criteria.GET("/:id", controllers.GetVacancyCriteria)
-		criteria.GET("spec/:id", controllers.GetVacancyCriteriaByID)
-
+		criteria.GET("/spec/:id", controllers.GetVacancyCriteriaByID)
 		criteria.POST("",
 			middlewares.CheckUserAuthentication,
 			middlewares.CheckUserWorker,
-			controllers.CreateVacancyCriteria)
+			controllers.CreateVacancyCriteria,
+		)
 		criteria.PATCH("/:id",
 			middlewares.CheckUserAuthentication,
 			middlewares.CheckUserWorker,
 			middlewares.CheckWorkerVacancyCriteria,
-			controllers.UpdateVacancyCriteria)
+			controllers.UpdateVacancyCriteria,
+		)
 		criteria.DELETE("/:id",
 			middlewares.CheckUserAuthentication,
 			middlewares.CheckUserWorker,
 			middlewares.CheckWorkerVacancyCriteria,
-			controllers.DeleteVacancyCriteria)
+			controllers.DeleteVacancyCriteria,
+		)
 	}
 
-	// course и courseWorker Маршруты для курсов
+	// Курсы
 	course := r.Group("/course")
 	{
 		course.GET("",
 			middlewares.CheckUserAuthentication,
-			ai.GetAnalyseForUserCourse)
+			func(c *gin.Context) {
+				runHeavyTask(c, ai.GetAnalyseForUserCourse)
+			},
+		)
 		course.GET("/:id", controllers.GetCourseByID)
 		course.GET("/worker/:worker_id", controllers.GetAllWorkerCourses)
 	}
 
-	courseWorker := r.Group("/course", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker)
+	// Курсы (worker)
+	courseWorker := r.Group("/course",
+		middlewares.CheckUserAuthentication,
+		middlewares.CheckUserWorker,
+	)
 	{
 		courseWorker.POST("", controllers.CreateCourse)
-		courseWorker.PATCH("/:id",
-			middlewares.CheckWorkerCourse,
-			controllers.UpdateCourse)
-		courseWorker.DELETE("/:id",
-			middlewares.CheckWorkerCourse,
-			controllers.DeleteCourse)
-
-		courseWorker.GET("users/:id",
-			middlewares.CheckWorkerCourse,
-			ai.GetAnalyseForCourseUser)
+		courseWorker.PATCH("/:id", middlewares.CheckWorkerCourse, controllers.UpdateCourse)
+		courseWorker.DELETE("/:id", middlewares.CheckWorkerCourse, controllers.DeleteCourse)
+		courseWorker.GET("/users/:id", middlewares.CheckWorkerCourse, ai.GetAnalyseForCourseUser)
 		courseWorker.POST("/recommends", controllers.CreateRecommendCourse)
 	}
 
-	// recommends Маршруты для получения своих рекомендаций
+	// Рекомендации
 	recommend := r.Group("/recommends", middlewares.CheckUserAuthentication)
 	{
 		recommend.GET("/:id", controllers.GetUserRecommendByID)
@@ -124,19 +136,43 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 		recommend.GET("/vacancy", controllers.GetUserRecommendsVacancy)
 	}
 
-	// aiChat Маршруты для ИИ
-	aiChat := r.Group("ai", middlewares.CheckUserAuthentication)
+	// AI-Chat
+	aiChat := r.Group("/ai", middlewares.CheckUserAuthentication)
 	{
-		aiChat.GET("/recommends", ai.GetAIRecommendsForUser)
-
+		aiChat.GET("/recommends", func(c *gin.Context) {
+			runHeavyTask(c, ai.GetAIRecommendsForUser)
+		})
 		aiChat.GET("/chat", aiWebSocket.ChatAIWebSocketHandler)
 	}
 
-	// analyse Маршруты основных анализов для Министерства образования
-	analyse := r.Group("analyse", middlewares.CheckUserAuthentication, middlewares.CheckWorkerDepartment)
+	// Аналитика
+	analyse := r.Group("/analyse",
+		middlewares.CheckUserAuthentication,
+		middlewares.CheckWorkerDepartment,
+	)
 	{
-		analyse.GET("/companies", ai.GetCompaniesStatistic)
-		analyse.GET("/users", ai.GetUsersStatistic)
+		analyse.GET("/companies", func(c *gin.Context) {
+			runHeavyTask(c, ai.GetCompaniesStatistic)
+		})
+		analyse.GET("/users", func(c *gin.Context) {
+			runHeavyTask(c, ai.GetUsersStatistic)
+		})
+	}
+
+	// Тесты
+	tests := r.Group("/tests")
+	{
+		tests.GET("", controllers.CreateTest)
+		tests.GET("/:id", controllers.GetTestByID)
+		tests.POST("", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckUserTest, controllers.CreateTest)
+		tests.PUT("/:id", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckUserTest, controllers.UpdateTest)
+		tests.DELETE("/:id", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckUserTest, controllers.DeleteTest)
+	}
+
+	testSubmissions := tests.Group("/submissions")
+	{
+		testSubmissions.GET("/:id", controllers.GetSortedSubmissionsHandler)
+		testSubmissions.POST("", middlewares.CheckUserAuthentication, controllers.CreateTestSubmission)
 	}
 
 	return r

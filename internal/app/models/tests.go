@@ -19,17 +19,36 @@ type Test struct {
 	Questions []Question `gorm:"foreignKey:TestID"`
 }
 
+type TestSubmission struct {
+	ID          int       `gorm:"primaryKey"`
+	TestID      int       `json:"test_id" gorm:"not null"`
+	Test        Test      `gorm:"foreignKey:TestID"` // ← добавлено поле для связи
+	UserID      int       `json:"user_id" gorm:"not null"`
+	SubmittedAt time.Time `json:"submitted_at"`
+	Answers     []Answer  `gorm:"foreignKey:SubmissionID"`
+	// не забудьте добавить сюда при необходимости:
+	CorrectPercentage float64 `json:"correct_percentage" gorm:"-"`
+}
+
+type Answer struct {
+	ID                int           `gorm:"primaryKey"`
+	SubmissionID      int           `json:"submission_id" gorm:"not null"`
+	QuestionID        int           `json:"question_id" gorm:"not null"`
+	Question          Question      `gorm:"foreignKey:QuestionID"` // ← связь
+	TextAnswer        string        `json:"text_answer"`
+	SelectedChoiceIDs pq.Int64Array `json:"selected_choice_ids" gorm:"type:int[]"`
+}
+
 type Question struct {
-	ID        int    `gorm:"primaryKey"`
-	TestID    int    `json:"test_id" gorm:"not null"`
-	Test      Test   `json:"-" gorm:"foreignKey:TestID"`
-	Text      string `json:"text" gorm:"type:text"`
-	Type      string `json:"type"` // "text", "single_choice", "multiple_choice"
+	ID        int      `gorm:"primaryKey"`
+	TestID    int      `json:"test_id" gorm:"not null"`
+	Test      Test     `json:"-" gorm:"foreignKey:TestID"`
+	Text      string   `json:"text" gorm:"type:text"`
+	Type      string   `json:"type"`
+	Choices   []Choice `gorm:"foreignKey:QuestionID"` // ← связь
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
-
-	Choices []Choice `gorm:"foreignKey:QuestionID"`
 }
 
 type Choice struct {
@@ -41,23 +60,4 @@ type Choice struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt `gorm:"index"`
-}
-
-type TestSubmission struct {
-	ID          int       `gorm:"primaryKey"`
-	TestID      int       `json:"test_id" gorm:"not null"`
-	UserID      int       `json:"user_id" gorm:"not null"`
-	SubmittedAt time.Time `json:"submitted_at"`
-
-	Answers []Answer `gorm:"foreignKey:SubmissionID"`
-}
-
-type Answer struct {
-	ID                int            `gorm:"primaryKey"`
-	SubmissionID      int            `json:"submission_id" gorm:"not null"`
-	QuestionID        int            `json:"question_id" gorm:"not null"`
-	TextAnswer        string         // если текстовый ответ
-	SelectedChoiceIDs pq.StringArray `json:"selected_choice_ids" gorm:"type:text[]"` // для множественного выбора
-
-	Question Question
 }

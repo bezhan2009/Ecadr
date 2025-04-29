@@ -11,8 +11,8 @@ import (
 	"net/http"
 )
 
-func SeedCriteria(db *gorm.DB) error {
-	url := "https://bf06c50f7c3aa09d.mokky.dev/vacancy-criteria"
+func SeedTests(db *gorm.DB) error {
+	url := "https://bf06c50f7c3aa09d.mokky.dev/tests"
 
 	// Отправьте GET-запрос
 	response, err := http.Get(url)
@@ -27,26 +27,26 @@ func SeedCriteria(db *gorm.DB) error {
 		log.Fatalf("Ошибка при чтении ответа: %v", err)
 	}
 
-	var criteria []models.Criteria
-	if err := json.Unmarshal(body, &criteria); err != nil {
+	var tests []models.Test
+	if err := json.Unmarshal(body, &tests); err != nil {
 		log.Fatalf("Ошибка при декодировании JSON: %v", err)
 	}
 
-	IdCriteria := 1
+	IdTest := 1
 
-	for _, crit := range criteria {
-		var existingGrade models.Criteria
-		if err := db.First(&existingGrade, "id = ?", IdCriteria).Error; err != nil {
+	for _, test := range tests {
+		var existingTest models.Test
+		if err := db.First(&existingTest, "id = ?", IdTest).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				db.Create(&crit)
+				db.Create(&test)
 			} else {
-				logger.Error.Printf("[seeds.SeedGrades] Error seeding criteria: %v", err)
+				logger.Error.Printf("[seeds.SeedTests] Error seeding tests: %v", err)
 
 				return err
 			}
 		}
 
-		IdCriteria++
+		IdTest++
 	}
 
 	return nil

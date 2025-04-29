@@ -4,7 +4,6 @@ import (
 	"Ecadr/internal/app/models"
 	"Ecadr/internal/app/service"
 	aiSerivce "Ecadr/internal/app/service/ai"
-	"Ecadr/internal/controllers"
 	"Ecadr/internal/controllers/middlewares"
 	"Ecadr/internal/security"
 	"Ecadr/pkg/db"
@@ -14,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"time"
 )
 
@@ -45,19 +45,19 @@ func getVacancyFromRedis(key string) ([]models.Vacancy, error) {
 // @Failure 500 {object} errs.ErrorResp "Внутренняя ошибка сервера"
 // @Router /vacancy [get]
 // @Security ApiKeyAuth
-func GetAnalyseForUserVacancies(c *gin.Context) {
+func GetAnalyseForUserVacancies(c *gin.Context) (interface{}, error) {
 	search := c.Query("search")
 	userID := c.GetUint(middlewares.UserIDCtx)
 
 	if userID == 0 {
-		controllers.HandleError(c, errs.ErrUserNotFound)
-		return
+		//controllers.HandleError(c, errs.ErrUserNotFound)
+		return nil, errs.ErrUserNotFound
 	}
 
 	userData, err := service.GetUserByID(userID)
 	if err != nil {
-		controllers.HandleError(c, err)
-		return
+		//controllers.HandleError(c, err)
+		return nil, err
 	}
 
 	var vacancies []models.Vacancy
@@ -66,14 +66,14 @@ func GetAnalyseForUserVacancies(c *gin.Context) {
 
 		searchVacancy, err := getVacancyFromRedis(keyCacheRedisSearch)
 		if err == nil && len(searchVacancy) > 0 {
-			c.JSON(200, searchVacancy)
-			return
+			//c.JSON(http.StatusOK, searchVacancy)
+			return searchVacancy, nil
 		}
 
 		vacancies, err = service.GetAllVacancies(search)
 		if err != nil {
-			controllers.HandleError(c, err)
-			return
+			//controllers.HandleError(c, err)
+			return nil, err
 		}
 
 		vacancyJson, err := json.Marshal(vacancies)
@@ -87,22 +87,22 @@ func GetAnalyseForUserVacancies(c *gin.Context) {
 			)
 		}
 
-		c.JSON(200, vacancies)
-		return
+		//c.JSON(http.StatusOK, vacancies)
+		return vacancies, nil
 	}
 
 	keyCacheRedis := fmt.Sprintf("analyzed_vacancies_%d", userID)
 
 	analysedVacanciesCache, err := getVacancyFromRedis(keyCacheRedis)
 	if err == nil && len(analysedVacanciesCache) > 0 {
-		c.JSON(200, analysedVacanciesCache)
-		return
+		//c.JSON(200, analysedVacanciesCache)
+		return analysedVacanciesCache, err
 	}
 
 	vacancies, err = service.GetAllVacancies(search)
 	if err != nil {
-		controllers.HandleError(c, err)
-		return
+		//controllers.HandleError(c, err)
+		return nil, err
 	}
 
 	analysedVacancies, err := aiSerivce.GetAnalyseForUserVacancies(
@@ -124,12 +124,12 @@ func GetAnalyseForUserVacancies(c *gin.Context) {
 				)
 			}
 
-			c.JSON(200, vacancies)
-			return
+			c.JSON(http.StatusOK, vacancies)
+			return vacancies, err
 		}
 
-		controllers.HandleError(c, err)
-		return
+		//controllers.HandleError(c, err)
+		return nil, err
 	}
 
 	vacancyJson, err := json.Marshal(analysedVacancies)
@@ -143,5 +143,6 @@ func GetAnalyseForUserVacancies(c *gin.Context) {
 		)
 	}
 
-	c.JSON(201, analysedVacancies)
+	//c.JSON(http.StatusCreated, analysedVacancies)
+	return analysedVacancies, nil
 }

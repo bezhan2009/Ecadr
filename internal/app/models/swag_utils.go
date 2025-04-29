@@ -180,3 +180,8 @@ type CriteriaReq struct {
 type CriteriaResp struct {
 	Message string `json:"message"`
 }
+
+type TestSearchRequest struct {
+	TargetID   uint   `json:"target_id"`
+	TargetType string `json:"target_type"`
+}

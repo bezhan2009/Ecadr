@@ -4,7 +4,6 @@ import (
 	"Ecadr/internal/app/models"
 	"Ecadr/internal/app/service"
 	aiSerivce "Ecadr/internal/app/service/ai"
-	"Ecadr/internal/controllers"
 	"Ecadr/internal/controllers/middlewares"
 	"Ecadr/internal/security"
 	"Ecadr/pkg/db"
@@ -14,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"time"
 )
 
@@ -45,19 +45,19 @@ func getCourseFromRedis(key string) ([]models.Course, error) {
 // @Failure 500 {object} errs.ErrorResp "Внутренняя ошибка сервера"
 // @Router /course [get]
 // @Security ApiKeyAuth
-func GetAnalyseForUserCourse(c *gin.Context) {
+func GetAnalyseForUserCourse(c *gin.Context) (interface{}, error) {
 	search := c.Query("search")
 	userID := c.GetUint(middlewares.UserIDCtx)
 
 	if userID == 0 {
-		controllers.HandleError(c, errs.ErrUserNotFound)
-		return
+		//controllers.HandleError(c, errs.ErrUserNotFound)
+		return nil, errs.ErrUserNotFound
 	}
 
 	userData, err := service.GetUserByID(userID)
 	if err != nil {
-		controllers.HandleError(c, err)
-		return
+		//controllers.HandleError(c, err)
+		return nil, err
 	}
 
 	var courses []models.Course
@@ -66,14 +66,14 @@ func GetAnalyseForUserCourse(c *gin.Context) {
 
 		searchCourse, err := getCourseFromRedis(keyCacheRedisSearch)
 		if err == nil && len(searchCourse) > 0 {
-			c.JSON(200, searchCourse)
-			return
+			//c.JSON(http.StatusOK, searchCourse)
+			return searchCourse, nil
 		}
 
 		courses, err = service.GetAllCourses(search)
 		if err != nil {
-			controllers.HandleError(c, err)
-			return
+			//controllers.HandleError(c, err)
+			return courses, err
 		}
 
 		courseJson, err := json.Marshal(courses)
@@ -87,22 +87,22 @@ func GetAnalyseForUserCourse(c *gin.Context) {
 			)
 		}
 
-		c.JSON(200, courses)
-		return
+		//c.JSON(200, courses)
+		return courses, nil
 	}
 
 	keyCacheRedis := fmt.Sprintf("analyzed_course_%d", userID)
 
 	analysedCoursesCache, err := getCourseFromRedis(keyCacheRedis)
 	if err == nil && len(analysedCoursesCache) > 0 {
-		c.JSON(200, analysedCoursesCache)
-		return
+		//c.JSON(200, analysedCoursesCache)
+		return analysedCoursesCache, nil
 	}
 
 	courses, err = service.GetAllCourses(search)
 	if err != nil {
-		controllers.HandleError(c, err)
-		return
+		//controllers.HandleError(c, err)
+		return courses, err
 	}
 
 	analysedCourse, err := aiSerivce.GetAnalyseForUserCourse(
@@ -124,12 +124,12 @@ func GetAnalyseForUserCourse(c *gin.Context) {
 				)
 			}
 
-			c.JSON(200, courses)
-			return
+			//c.JSON(http.StatusOK, courses)
+			return courses, nil
 		}
 
-		controllers.HandleError(c, err)
-		return
+		//controllers.HandleError(c, err)
+		return courses, nil
 	}
 
 	courseJson, err := json.Marshal(analysedCourse)
@@ -143,5 +143,6 @@ func GetAnalyseForUserCourse(c *gin.Context) {
 		)
 	}
 
-	c.JSON(201, analysedCourse)
+	c.JSON(http.StatusCreated, analysedCourse)
+	return analysedCourse, nil
 }

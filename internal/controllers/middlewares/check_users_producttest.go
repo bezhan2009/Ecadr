@@ -2,9 +2,8 @@ package middlewares
 
 import (
 	"Ecadr/internal/app/service"
-	"Ecadr/internal/controllers"
-	"Ecadr/pkg/errs"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"strconv"
 )
 
@@ -14,36 +13,36 @@ func CheckUserTest(c *gin.Context) {
 	testIDStr := c.Param("id")
 	testID, err := strconv.Atoi(testIDStr)
 	if err != nil {
-		controllers.HandleError(c, errs.ErrValidationFailed)
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Permission denied"})
 		return
 	}
 
 	test, err := service.GetTestByID(uint(testID))
 	if err != nil {
-		controllers.HandleError(c, err)
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Permission denied"})
 		return
 	}
 
 	if test.TargetType == 1 {
 		vacancy, err := service.GetVacancyByID(test.TargetID)
 		if err != nil {
-			controllers.HandleError(c, err)
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Permission denied"})
 			return
 		}
 
 		if uint(vacancy.WorkerID) == userID {
-			controllers.HandleError(c, errs.ErrPermissionDenied)
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Permission denied"})
 			return
 		}
 	} else if test.TargetType == 2 {
 		course, err := service.GetCourseById(test.TargetID)
 		if err != nil {
-			controllers.HandleError(c, err)
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Permission denied"})
 			return
 		}
 
 		if uint(course.WorkerID) == userID {
-			controllers.HandleError(c, errs.ErrPermissionDenied)
+			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Permission denied"})
 			return
 		}
 	}

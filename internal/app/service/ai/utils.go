@@ -163,6 +163,8 @@ func sendTextToGemini(text string) (response string, err error) {
 	}
 	defer analyse.Body.Close()
 
+	fmt.Println(analyse)
+
 	body, err := ioutil.ReadAll(analyse.Body)
 	if err != nil {
 		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error reading body analyse: %v", err)
@@ -174,6 +176,8 @@ func sendTextToGemini(text string) (response string, err error) {
 		logger.Error.Printf("[aiService.GetAnalyseForCourseUser] Error parsing body: %v", err)
 		return "", err
 	}
+
+	fmt.Println(GeminiResp)
 
 	var GeminiText = GeminiResp.Candidates[0].Content.Parts[0].Text
 
