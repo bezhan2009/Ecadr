@@ -23,7 +23,7 @@ func GetAllUsers(search string) (users []models.User, err error) {
 
 func GetUserByID(id uint) (user models.User, err error) {
 	user, err = redisService.GetCachedUser(id)
-	if err == nil {
+	if err == nil && len(user.Achievements) != 0 {
 		return user, nil
 	}
 

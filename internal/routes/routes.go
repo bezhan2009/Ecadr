@@ -21,7 +21,7 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// usersRoute Маршруты для пользователей (профили)
-	usersRoute := r.Group("/users", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker)
+	usersRoute := r.Group("/users", middlewares.CheckUserAuthentication, middlewares.CheckWorkerDepartment)
 	{
 		usersRoute.GET("", pagination.UsersWebSocket)
 		usersRoute.GET("/:id", controllers.GetUserByID)

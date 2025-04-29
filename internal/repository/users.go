@@ -10,7 +10,8 @@ import (
 	"time"
 )
 
-func GetUsersWithPagination(search string, afterCreatedAt *time.Time, afterID *uint, limit int) (users []models.User, err error) {
+func GetUsersWithPagination(search string, afterCreatedAt *time.Time,
+	afterID *uint, limit int) (users []models.User, err error) {
 	query := db.GetDBConn().
 		Preload("KindergartenNotes").
 		Preload("SchoolGrades").
@@ -40,7 +41,6 @@ func GetUsersWithPagination(search string, afterCreatedAt *time.Time, afterID *u
 	}
 
 	err = query.
-		Order("users.created_at ASC, users.id ASC").
 		Limit(limit).
 		Find(&users).Error
 

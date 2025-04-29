@@ -10,6 +10,7 @@ var (
 	ErrAlreadyExists         = errors.New("ErrAlreadyExists")
 	ErrRoleIsRequired        = errors.New("ErrRoleIsRequired")
 	ErrSomethingWentWrong    = errors.New("ErrSomethingWentWrong")
+	ErrGeminiIsNotWorking    = errors.New("ErrGeminiIsNotWorking")
 	ErrDeleteFailed          = errors.New("ErrDeleteFailed")
 	ErrNoCourseFound         = errors.New("ErrNoCourseFound")
 	ErrNoVacancyFound        = errors.New("ErrNoVacancyFound")
