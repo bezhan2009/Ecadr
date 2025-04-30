@@ -2,6 +2,7 @@ package aiSerivce
 
 import (
 	"Ecadr/internal/app/models"
+	"Ecadr/pkg/errs"
 	"Ecadr/pkg/logger"
 	"bytes"
 	"encoding/json"
@@ -178,6 +179,15 @@ func sendTextToGemini(text string) (response string, err error) {
 	}
 
 	fmt.Println(GeminiResp)
+
+	if len(GeminiResp.Candidates) == 0 {
+		logger.Error.Printf("[aiService.GetAnalyseForCourseUser] No candidates returned from Gemini response: %s", string(body))
+		return "", errs.ErrGeminiIsNotWorking
+	}
+	if len(GeminiResp.Candidates[0].Content.Parts) == 0 {
+		logger.Error.Printf("[aiService.GetAnalyseForCourseUser] No parts in first candidate's content: %s", string(body))
+		return "", errs.ErrGeminiIsNotWorking
+	}
 
 	var GeminiText = GeminiResp.Candidates[0].Content.Parts[0].Text
 

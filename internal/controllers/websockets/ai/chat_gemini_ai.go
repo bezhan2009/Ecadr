@@ -5,6 +5,7 @@ import (
 	"Ecadr/internal/app/service"
 	aiService "Ecadr/internal/app/service/ai"
 	"Ecadr/internal/controllers/middlewares"
+	"Ecadr/internal/repository"
 	"Ecadr/pkg/brokers"
 	"Ecadr/pkg/logger"
 	"encoding/json"
@@ -89,7 +90,14 @@ func handleMessage(userID uint, msg amqp.Delivery) error {
 		return err
 	}
 
+	msgs, err := repository.GetAllUserMessages(userID)
+	if err != nil {
+		log.Printf(err.Error())
+		return err
+	}
+
 	respAI, err := aiService.SendMessageToGeminiAI(
+		msgs,
 		user.KindergartenNotes,
 		user.SchoolGrades,
 		user.Achievements,
