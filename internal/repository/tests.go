@@ -6,7 +6,7 @@ import (
 	"Ecadr/pkg/logger"
 )
 
-func GetTasksByTypeAndID(targetType string, targetID uint) (tests []models.Test, err error) {
+func GetTasksByTypeAndID(targetType, targetID uint) (tests []models.Test, err error) {
 	if err = db.GetDBConn().Model(&models.Test{}).Where("target_type = ? AND target_id = ?", targetType, targetID).Find(&tests).Error; err != nil {
 		logger.Error.Printf("[repository.GetTasksByTypeAndID] Error getting tasks by type and id %v", err)
 

@@ -162,8 +162,10 @@ func InitRoutes(r *gin.Engine) *gin.Engine {
 	// Тесты
 	tests := r.Group("/tests")
 	{
-		tests.GET("", controllers.CreateTest)
+		tests.POST("", controllers.CreateTest)
+		tests.GET("", controllers.GetTestsByTypeAndID)
 		tests.GET("/:id", controllers.GetTestByID)
+
 		tests.POST("", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckUserTest, controllers.CreateTest)
 		tests.PUT("/:id", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckUserTest, controllers.UpdateTest)
 		tests.DELETE("/:id", middlewares.CheckUserAuthentication, middlewares.CheckUserWorker, middlewares.CheckUserTest, controllers.DeleteTest)

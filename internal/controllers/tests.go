@@ -10,6 +10,16 @@ import (
 	"strconv"
 )
 
+// GetTestsByTypeAndID godoc
+// @Summary      Get tests by target type and ID
+// @Description  Get list of tests for vacancy/course
+// @Tags         tests
+// @Accept       json
+// @Produce      json
+// @Param        request  body      models.TestSearchRequest  true  "Target info"
+// @Success      200      {array}   models.TestResponse
+// @Failure      400      {object}  models.ErrorResponse
+// @Router       /tests/search [post]
 func GetTestsByTypeAndID(c *gin.Context) {
 	var testReq models.TestSearchRequest
 	err := c.BindJSON(&testReq)
@@ -18,7 +28,7 @@ func GetTestsByTypeAndID(c *gin.Context) {
 		return
 	}
 
-	tests, err := service.GetTestsByTypeAndID(testReq.TargetType, testReq.TargetID)
+	tests, err := service.GetTestsByTypeAndID(uint(testReq.TargetType), uint(testReq.TargetID))
 	if err != nil {
 		HandleError(c, err)
 		return
@@ -27,6 +37,15 @@ func GetTestsByTypeAndID(c *gin.Context) {
 	c.JSON(http.StatusOK, tests)
 }
 
+// GetTestByID godoc
+// @Summary      Get test by ID
+// @Description  Returns a test by its ID
+// @Tags         tests
+// @Param        id   path      int  true  "Test ID"
+// @Success      200  {object}  models.TestResponse
+// @Failure      400  {object}  models.ErrorResponse
+// @Failure      404  {object}  models.ErrorResponse
+// @Router       /tests/{id} [get]
 func GetTestByID(c *gin.Context) {
 	testIdStr := c.Param("id")
 	testId, err := strconv.Atoi(testIdStr)
@@ -44,6 +63,16 @@ func GetTestByID(c *gin.Context) {
 	c.JSON(http.StatusOK, test)
 }
 
+// CreateTest godoc
+// @Summary      Create new test
+// @Description  Creates a test
+// @Tags         tests
+// @Accept       json
+// @Produce      json
+// @Param        test  body      models.TestRequest  true  "Test object"
+// @Success      200   {object}  models.DefaultResponse
+// @Failure      400   {object}  models.ErrorResponse
+// @Router       /tests [post]
 func CreateTest(c *gin.Context) {
 	var test models.Test
 	err := c.BindJSON(&test)
@@ -64,6 +93,17 @@ func CreateTest(c *gin.Context) {
 	})
 }
 
+// UpdateTest godoc
+// @Summary      Update test
+// @Description  Updates an existing test
+// @Tags         tests
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int             true  "Test ID"
+// @Param        test  body      models.TestRequest true  "Test object"
+// @Success      200   {object}  models.TestsRouteCRUDReq
+// @Failure      400   {object}  models.ErrorResponse
+// @Router       /tests/{id} [put]
 func UpdateTest(c *gin.Context) {
 	testIdStr := c.Param("id")
 	testId, err := strconv.Atoi(testIdStr)
@@ -92,6 +132,14 @@ func UpdateTest(c *gin.Context) {
 	})
 }
 
+// DeleteTest godoc
+// @Summary      Delete test
+// @Description  Deletes a test by ID
+// @Tags         tests
+// @Param        id   path      int  true  "Test ID"
+// @Success      200  {object}  models.TestsRouteCRUDReq
+// @Failure      400  {object}  models.ErrorResponse
+// @Router       /tests/{id} [delete]
 func DeleteTest(c *gin.Context) {
 	testIdStr := c.Param("id")
 	testId, err := strconv.Atoi(testIdStr)
@@ -112,6 +160,15 @@ func DeleteTest(c *gin.Context) {
 	})
 }
 
+// GetSortedSubmissionsHandler godoc
+// @Summary      Submit test answers
+// @Description  Submit test answers for a test
+// @Tags         tests
+// @Accept       json
+// @Produce      json
+// @Success      200         {object}  models.TestResponse
+// @Failure      400         {object}  models.ErrorResponse
+// @Router       /tests/submission/{id} [get]
 func GetSortedSubmissionsHandler(c *gin.Context) {
 	testIdStr := c.Param("id")
 	testId, err := strconv.Atoi(testIdStr)
@@ -129,6 +186,16 @@ func GetSortedSubmissionsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, sorted)
 }
 
+// CreateTestSubmission godoc
+// @Summary      Submit test answers
+// @Description  Submit test answers for a test
+// @Tags         tests
+// @Accept       json
+// @Produce      json
+// @Param        submission  body      models.TestSubmissionRequest  true  "Submission"
+// @Success      200         {object}  models.TestSubmissionResponse
+// @Failure      400         {object}  models.ErrorResponse
+// @Router       /tests/submission [post]
 func CreateTestSubmission(c *gin.Context) {
 	userID := c.GetUint(middlewares.UserIDCtx)
 
