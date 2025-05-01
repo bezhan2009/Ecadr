@@ -35,7 +35,7 @@ func SortSubmissionsByScore(testID uint) ([]models.TestSubmission, error) {
 }
 
 func GetTestsByTypeAndID(targetType uint, targetID uint) (tests []models.Test, err error) {
-	tests, err = repository.GetTasksByTypeAndID(targetType, targetID)
+	tests, err = repository.GetTestsByTypeAndID(targetType, targetID)
 	if err != nil {
 		return nil, err
 	}

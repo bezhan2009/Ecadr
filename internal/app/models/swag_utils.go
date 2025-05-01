@@ -184,12 +184,12 @@ type CriteriaResp struct {
 type TestRequest struct {
 	Title       string `json:"title" example:"Backend Test"`
 	Description string `json:"description" example:"Test for backend candidates"`
-	TargetType  int    `json:"target_type" example:"1"`
-	TargetID    int    `json:"target_id" example:"42"`
+	TargetType  int    `json:"target_type"`
+	TargetID    int    `json:"target_id"`
 }
 
 type TestResponse struct {
-	ID          int    `json:"id" example:"1"`
+	ID          int    `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 	TargetType  int    `json:"target_type"`
@@ -197,19 +197,19 @@ type TestResponse struct {
 }
 
 type TestSearchRequest struct {
-	TargetType int `json:"target_type" example:"1"`
-	TargetID   int `json:"target_id" example:"42"`
+	TargetType int `json:"target_type"`
+	TargetID   int `json:"target_id"`
 }
 
 type TestSubmissionRequest struct {
-	TestID  int             `json:"test_id" example:"1"`
+	TestID  int             `json:"test_id"`
 	Answers []AnswerRequest `json:"answers"`
 }
 
 type AnswerRequest struct {
-	QuestionID        int    `json:"question_id" example:"1"`
+	QuestionID        int    `json:"question_id"`
 	TextAnswer        string `json:"text_answer,omitempty" example:"Some answer"`
-	SelectedChoiceIDs []int  `json:"selected_choice_ids,omitempty" example:"[1,2]"`
+	SelectedChoiceIDs []int  `json:"selected_choice_ids,omitempty"`
 }
 
 type TestSubmissionResponse struct {
@@ -218,5 +218,5 @@ type TestSubmissionResponse struct {
 
 type TestsRouteCRUDReq struct {
 	Message string `json:"message" example:"test created successfully"`
-	TestID  int    `json:"test_id" example:"1"`
+	TestID  int    `json:"test_id"`
 }

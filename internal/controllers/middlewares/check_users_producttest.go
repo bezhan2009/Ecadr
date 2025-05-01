@@ -23,7 +23,7 @@ func CheckUserTest(c *gin.Context) {
 		return
 	}
 
-	if test.TargetType == 1 {
+	if test.TargetType == 2 {
 		vacancy, err := service.GetVacancyByID(test.TargetID)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Permission denied"})
@@ -34,7 +34,7 @@ func CheckUserTest(c *gin.Context) {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Permission denied"})
 			return
 		}
-	} else if test.TargetType == 2 {
+	} else if test.TargetType == 1 {
 		course, err := service.GetCourseById(test.TargetID)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"message": "Permission denied"})

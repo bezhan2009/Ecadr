@@ -8,6 +8,7 @@ import (
 	"Ecadr/pkg/errs"
 	"Ecadr/pkg/logger"
 	"Ecadr/pkg/utils"
+	"encoding/json"
 	"fmt"
 	"strconv"
 )
@@ -21,23 +22,37 @@ func GetAllUsers(search string) (users []models.User, err error) {
 	return users, nil
 }
 
-func GetUserByID(id uint) (user models.User, err error) {
+func GetUserByID(id uint) (user models.User, charter models.Charter, err error) {
 	user, err = redisService.GetCachedUser(id)
-	if err == nil && len(user.Achievements) != 0 {
-		return user, nil
-	}
-
-	user, err = repository.GetUserByID(strconv.Itoa(int(id)))
 	if err != nil {
-		return user, err
+		user, err = repository.GetUserByID(strconv.Itoa(int(id)))
+		if err != nil {
+			return user, charter, err
+		}
 	}
 
-	err = redisService.SetUserCache(user)
+	charter, err = redisService.GetCachedCharter(id)
+	resp := ""
 	if err != nil {
-		return models.User{}, err
+		resp, _ = utils.SendTextToGemini(fmt.Sprintf(`Скинь вот такой обьект json чартеров 
+{
+	"subject": "Предмет из школы",
+	"score": "Статистика этого предмета основопологаясь на данных пользователя(от 1 до 100)"
+}
+вот данные пользователя
+%v
+`, user))
+
+		err = json.Unmarshal([]byte(resp), &charter)
+		if err != nil {
+			logger.Error.Println(err)
+		}
 	}
 
-	return user, nil
+	redisService.SetUserCache(user)
+	redisService.SetCharterCache(charter, user.ID)
+
+	return user, charter, nil
 }
 
 func CreateUser(user models.User, company models.Company) (uint, error) {

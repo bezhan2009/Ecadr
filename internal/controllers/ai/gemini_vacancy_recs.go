@@ -54,7 +54,7 @@ func GetAnalyseForUserVacancies(c *gin.Context) (interface{}, error) {
 		return nil, errs.ErrUserNotFound
 	}
 
-	userData, err := service.GetUserByID(userID)
+	userData, _, err := service.GetUserByID(userID)
 	if err != nil {
 		//controllers.HandleError(c, err)
 		return nil, err

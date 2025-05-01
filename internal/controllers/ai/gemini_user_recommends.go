@@ -42,7 +42,7 @@ func getAIRecommendsFromRedis(key string) ([]models.AiUserRecommends, error) {
 func GetAIRecommendsForUser(c *gin.Context) (interface{}, error) {
 	userID := c.GetUint(middlewares.UserIDCtx)
 
-	user, err := service.GetUserByID(userID)
+	user, _, err := service.GetUserByID(userID)
 	if err != nil {
 		//controllers.HandleError(c, err)
 		return nil, err

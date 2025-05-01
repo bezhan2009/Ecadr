@@ -19,7 +19,7 @@ import (
 // @Param        request  body      models.TestSearchRequest  true  "Target info"
 // @Success      200      {array}   models.TestResponse
 // @Failure      400      {object}  models.ErrorResponse
-// @Router       /tests/search [post]
+// @Router       /tests [post]
 func GetTestsByTypeAndID(c *gin.Context) {
 	var testReq models.TestSearchRequest
 	err := c.BindJSON(&testReq)
@@ -73,6 +73,7 @@ func GetTestByID(c *gin.Context) {
 // @Success      200   {object}  models.DefaultResponse
 // @Failure      400   {object}  models.ErrorResponse
 // @Router       /tests [post]
+// @Security ApiKeyAuth
 func CreateTest(c *gin.Context) {
 	var test models.Test
 	err := c.BindJSON(&test)
@@ -104,6 +105,7 @@ func CreateTest(c *gin.Context) {
 // @Success      200   {object}  models.TestsRouteCRUDReq
 // @Failure      400   {object}  models.ErrorResponse
 // @Router       /tests/{id} [put]
+// @Security ApiKeyAuth
 func UpdateTest(c *gin.Context) {
 	testIdStr := c.Param("id")
 	testId, err := strconv.Atoi(testIdStr)
@@ -140,6 +142,7 @@ func UpdateTest(c *gin.Context) {
 // @Success      200  {object}  models.TestsRouteCRUDReq
 // @Failure      400  {object}  models.ErrorResponse
 // @Router       /tests/{id} [delete]
+// @Security ApiKeyAuth
 func DeleteTest(c *gin.Context) {
 	testIdStr := c.Param("id")
 	testId, err := strconv.Atoi(testIdStr)
@@ -166,9 +169,11 @@ func DeleteTest(c *gin.Context) {
 // @Tags         tests
 // @Accept       json
 // @Produce      json
+// @Param        id   path      int  true  "Test ID"
 // @Success      200         {object}  models.TestResponse
 // @Failure      400         {object}  models.ErrorResponse
-// @Router       /tests/submission/{id} [get]
+// @Router       /tests/submissions/{id} [get]
+// @Security ApiKeyAuth
 func GetSortedSubmissionsHandler(c *gin.Context) {
 	testIdStr := c.Param("id")
 	testId, err := strconv.Atoi(testIdStr)
@@ -195,7 +200,8 @@ func GetSortedSubmissionsHandler(c *gin.Context) {
 // @Param        submission  body      models.TestSubmissionRequest  true  "Submission"
 // @Success      200         {object}  models.TestSubmissionResponse
 // @Failure      400         {object}  models.ErrorResponse
-// @Router       /tests/submission [post]
+// @Router       /tests/submissions [post]
+// @Security ApiKeyAuth
 func CreateTestSubmission(c *gin.Context) {
 	userID := c.GetUint(middlewares.UserIDCtx)
 

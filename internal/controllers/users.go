@@ -26,6 +26,17 @@ func GetAllUsers(c *gin.Context) {
 	})
 }
 
+// GetUserByID godoc
+// @Summary Получить пользователя по ID
+// @Description Возвращает пользователя по его ID
+// @Tags users
+// @Security ApiKeyAuth
+// @Param id path int true "ID пользователя"
+// @Produce json
+// @Success 200 {object} models.UserRequest
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /users/{id} [get]
 func GetUserByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -38,7 +49,7 @@ func GetUserByID(c *gin.Context) {
 		return
 	}
 
-	user, err := service.GetUserByID(uint(id))
+	user, _, err := service.GetUserByID(uint(id))
 	if err != nil {
 		HandleError(c, err)
 		logger.Error.Printf("[controllers.GetUserByID] error: %v\n", err)
@@ -46,13 +57,21 @@ func GetUserByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, user)
-
 }
 
+// GetMyData godoc
+// @Summary Получить мои данные
+// @Description Возвращает данные текущего авторизованного пользователя и его чартер
+// @Tags users
+// @Security ApiKeyAuth
+// @Produce json
+// @Failure 401 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /users/me [get]
 func GetMyData(c *gin.Context) {
 	userId := c.GetUint(middlewares.UserIDCtx)
 
-	user, err := service.GetUserByID(userId)
+	user, charter, err := service.GetUserByID(userId)
 	if err != nil {
 		logger.Error.Printf("[controllers.GetMyData] error: %v\n", err)
 
@@ -61,5 +80,5 @@ func GetMyData(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, gin.H{"user": user, "charter": charter})
 }

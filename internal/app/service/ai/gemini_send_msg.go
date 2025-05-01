@@ -2,6 +2,7 @@ package aiSerivce
 
 import (
 	"Ecadr/internal/app/models"
+	"Ecadr/pkg/utils"
 	"encoding/json"
 	"fmt"
 )
@@ -11,7 +12,7 @@ func SendMessageToGeminiAI(messages []models.Message, kinderNote []models.Kinder
 	achievementsUser []models.Achievement,
 	msg string) (respAI *string, err error) {
 
-	jsons, err := serializeData(
+	jsons, err := utils.SerializeData(
 		nil,
 		nil,
 		kinderNote,
@@ -45,16 +46,16 @@ func SendMessageToGeminiAI(messages []models.Message, kinderNote []models.Kinder
 
 Вот сам вопрос:
 %s`,
-		string(jsons[kinderNotes]),
-		string(jsons[schoolGrades]),
-		string(jsons[achievements]),
+		string(jsons[utils.KinderNotes]),
+		string(jsons[utils.SchoolGrades]),
+		string(jsons[utils.Achievements]),
 		string(msgJson),
 		msg,
 	)
 
 	fmt.Println(text)
 
-	GeminiText, err := sendTextToGemini(text)
+	GeminiText, err := utils.SendTextToGemini(text)
 	if err != nil {
 		return nil, err
 	}

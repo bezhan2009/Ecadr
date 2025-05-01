@@ -4,6 +4,7 @@ import (
 	"Ecadr/internal/app/models"
 	"Ecadr/pkg/errs"
 	"Ecadr/pkg/logger"
+	"Ecadr/pkg/utils"
 	"encoding/json"
 	"fmt"
 )
@@ -11,7 +12,7 @@ import (
 func GetAnalyseForVacanciesUser(vacancy models.Vacancy,
 	usersAnalyse []models.User) (analysedUsers []models.User, err error) {
 
-	jsons, err := serializeData(
+	jsons, err := utils.SerializeData(
 		usersAnalyse,
 		nil,
 		nil,
@@ -34,22 +35,22 @@ func GetAnalyseForVacanciesUser(vacancy models.Vacancy,
 			"Ответ верни строго в виде **JSON-массива пользователя** от 0 до 10 элементов (включительно).\n"+
 			"- Если нет ни одного подходящего пользователя — верни `[]` (пустой массив).\n"+
 			"- Без лишнего текста, только JSON. Ни комментариев, ни пояснений.\n\n",
-		string(jsons[users]), string(jsons[vacancies]),
+		string(jsons[utils.Users]), string(jsons[utils.Vacancies]),
 	)
 
-	GeminiText, err := sendTextToGemini(text)
+	GeminiText, err := utils.SendTextToGemini(text)
 	if err != nil {
 		return nil, err
 	}
 
-	var GeminiTextParse = addBrackets(GeminiText[8 : len(GeminiText)-5])
+	var GeminiTextParse = utils.AddBrackets(GeminiText[8 : len(GeminiText)-5])
 
 	if GeminiTextParse == "[]" || len(GeminiTextParse) < 10 {
 		return analysedUsers, errs.ErrNoVacancyFound
 	}
 
 	if err := json.Unmarshal([]byte(GeminiTextParse), &analysedUsers); err != nil {
-		logger.Error.Printf("[aiService.GetAnalyseForVacanciesUser] Error parsing gemini text to users: %v", err)
+		logger.Error.Printf("[aiService.GetAnalyseForVacanciesUser] Error parsing gemini text to Users: %v", err)
 		return nil, err
 	}
 

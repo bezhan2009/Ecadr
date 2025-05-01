@@ -5,6 +5,7 @@ import (
 	"Ecadr/internal/app/service"
 	"Ecadr/pkg/errs"
 	"Ecadr/pkg/logger"
+	"Ecadr/pkg/utils"
 	"encoding/json"
 	"fmt"
 )
@@ -23,7 +24,7 @@ func getNeededCompanyByName(companyStatisticUtil models.CompanyStatisticJSONUtil
 }
 
 func GetCompaniesStatistic(companiesInfo []models.CompanyInfo) ([]models.CompanyStatistic, error) {
-	jsons, err := serializeData(
+	jsons, err := utils.SerializeData(
 		nil,
 		companiesInfo,
 		nil,
@@ -55,10 +56,10 @@ func GetCompaniesStatistic(companiesInfo []models.CompanyInfo) ([]models.Company
 
 Без лишнего текста, только JSON. Ни комментариев, ни пояснений.
 `,
-		string(jsons[companyInfoStats]), // Поясни, пожалуйста, что такое companyInfoStats!
+		string(jsons[utils.CompanyInfoStats]), // Поясни, пожалуйста, что такое CompanyInfoStats!
 	)
 
-	GeminiText, err := sendTextToGemini(text)
+	GeminiText, err := utils.SendTextToGemini(text)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +68,7 @@ func GetCompaniesStatistic(companiesInfo []models.CompanyInfo) ([]models.Company
 		return nil, errs.ErrNoUsersStatisticFound
 	}
 
-	var GeminiTextParse = addBrackets(GeminiText[8 : len(GeminiText)-5])
+	var GeminiTextParse = utils.AddBrackets(GeminiText[8 : len(GeminiText)-5])
 
 	if GeminiTextParse == "[]" || len(GeminiTextParse) < 10 {
 		return nil, errs.ErrNoUsersStatisticFound

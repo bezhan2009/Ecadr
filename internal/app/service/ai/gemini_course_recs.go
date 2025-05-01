@@ -4,6 +4,7 @@ import (
 	"Ecadr/internal/app/models"
 	"Ecadr/pkg/errs"
 	"Ecadr/pkg/logger"
+	"Ecadr/pkg/utils"
 	"encoding/json"
 	"fmt"
 )
@@ -13,7 +14,7 @@ func GetAnalyseForUserCourse(coursesWorker []models.Course,
 	schoolGrade []models.SchoolGrade,
 	achievementsUser []models.Achievement) (analysedCourses []models.Course, err error) {
 
-	jsons, err := serializeData(nil,
+	jsons, err := utils.SerializeData(nil,
 		nil,
 		kinderNote,
 		schoolGrade,
@@ -37,22 +38,22 @@ func GetAnalyseForUserCourse(coursesWorker []models.Course,
 			"Ответ верни строго в виде **JSON-массива** от 0 до 10 элементов (включительно).\n"+
 			"- Если нет ни одной подходящих курсов — верни `[]` (пустой массив).\n"+
 			"- Без лишнего текста, только JSON. Ни комментариев, ни пояснений.\n\n",
-		string(jsons[kinderNotes]), string(jsons[schoolGrades]), string(jsons[achievements]), string(jsons[courses]),
+		string(jsons[utils.KinderNotes]), string(jsons[utils.SchoolGrades]), string(jsons[utils.Achievements]), string(jsons[utils.Courses]),
 	)
 
-	GeminiText, err := sendTextToGemini(text)
+	GeminiText, err := utils.SendTextToGemini(text)
 	if err != nil {
 		return nil, err
 	}
 
-	var GeminiTextParse = addBrackets(GeminiText[8 : len(GeminiText)-5])
+	var GeminiTextParse = utils.AddBrackets(GeminiText[8 : len(GeminiText)-5])
 
 	if GeminiTextParse == "[]" || len(GeminiTextParse) < 10 {
 		return analysedCourses, errs.ErrNoCourseFound
 	}
 
 	if err := json.Unmarshal([]byte(GeminiTextParse), &analysedCourses); err != nil {
-		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error parsing gemini text to courses: %v", err)
+		logger.Error.Printf("[aiService.GetAnalyseForUserCourse] Error parsing gemini text to Courses: %v", err)
 		return nil, err
 	}
 

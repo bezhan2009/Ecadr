@@ -6,9 +6,13 @@ import (
 	"Ecadr/pkg/logger"
 )
 
-func GetTasksByTypeAndID(targetType, targetID uint) (tests []models.Test, err error) {
-	if err = db.GetDBConn().Model(&models.Test{}).Where("target_type = ? AND target_id = ?", targetType, targetID).Find(&tests).Error; err != nil {
-		logger.Error.Printf("[repository.GetTasksByTypeAndID] Error getting tasks by type and id %v", err)
+func GetTestsByTypeAndID(targetType, targetID uint) (tests []models.Test, err error) {
+	if err = db.GetDBConn().
+		Preload("Questions").
+		Preload("Questions.Choices").
+		Model(&models.Test{}).
+		Where("target_type = ? AND target_id = ?", targetType, targetID).Find(&tests).Error; err != nil {
+		logger.Error.Printf("[repository.GetTestsByTypeAndID] Error getting tasks by type and id %v", err)
 
 		return nil, TranslateGormError(err)
 	}
@@ -17,7 +21,11 @@ func GetTasksByTypeAndID(targetType, targetID uint) (tests []models.Test, err er
 }
 
 func GetTestByID(testID uint) (test models.Test, err error) {
-	if err = db.GetDBConn().Model(&models.Test{}).Where("id = ?", testID).Find(&test).Error; err != nil {
+	if err = db.GetDBConn().
+		Preload("Questions").
+		Preload("Questions.Choices").
+		Model(&models.Test{}).
+		Where("id = ?", testID).First(&test).Error; err != nil {
 		logger.Error.Printf("[repository.GetTestByID] Error getting test by id %v", err)
 		return test, TranslateGormError(err)
 	}
@@ -35,7 +43,7 @@ func CreateTest(test models.Test) (testID uint, err error) {
 }
 
 func UpdateTest(test models.Test) (testID uint, err error) {
-	if err = db.GetDBConn().Model(&models.Test{}).Updates(&test).Error; err != nil {
+	if err = db.GetDBConn().Model(&models.Test{}).Where("id = ?", test.ID).Updates(&test).Error; err != nil {
 		logger.Error.Printf("[repository.UpdateTest] Error updating test %v", err)
 		return 0, TranslateGormError(err)
 	}

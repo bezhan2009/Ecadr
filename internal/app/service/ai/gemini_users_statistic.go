@@ -4,12 +4,13 @@ import (
 	"Ecadr/internal/app/models"
 	"Ecadr/pkg/errs"
 	"Ecadr/pkg/logger"
+	"Ecadr/pkg/utils"
 	"encoding/json"
 	"fmt"
 )
 
 func GetUsersStatistic(usersAnalyse []models.User) (usersStatistic []models.UsersStatistic, err error) {
-	jsons, err := serializeData(
+	jsons, err := utils.SerializeData(
 		usersAnalyse,
 		nil,
 		nil,
@@ -31,24 +32,24 @@ func GetUsersStatistic(usersAnalyse []models.User) (usersStatistic []models.User
 			"Ответ верни строго в виде **JSON-массива**\n"+
 			"- Если нет ни одной статистики, либо ты просто не смог анализировать всё, то верни пустой массив `[]`\n"+
 			"- По данным каждого пользователя определи, в каком предемете он развит(или в направлении)\n"+
-			"- Верни вот такой JSON: { \"subject\": \"Это предмет\", \"quantity\": \"Это количество пользователей, которые тоже в этом предмете\""+
+			"- Верни вот такой JSON: { \"recommend\": \"Твоя рекомендация как сделать так чтобы больше людей заинетересовались в этом предмете\" \"subject\": \"Это предмет\", \"quantity\": \"Это количество пользователей, которые тоже в этом предмете\""+
 			"- Без лишнего текста, только JSON. Ни комментариев, ни пояснений.\n\n",
-		string(jsons[users]),
+		string(jsons[utils.Users]),
 	)
 
-	GeminiText, err := sendTextToGemini(text)
+	GeminiText, err := utils.SendTextToGemini(text)
 	if err != nil {
 		return nil, err
 	}
 
-	var GeminiTextParse = addBrackets(GeminiText[8 : len(GeminiText)-5])
+	var GeminiTextParse = utils.AddBrackets(GeminiText[8 : len(GeminiText)-5])
 
 	if GeminiTextParse == "[]" || len(GeminiTextParse) < 10 {
 		return usersStatistic, errs.ErrNoUsersStatisticFound
 	}
 
 	if err := json.Unmarshal([]byte(GeminiTextParse), &usersStatistic); err != nil {
-		logger.Error.Printf("[aiService.GetUsersStatistic] Error parsing gemini text to users: %v", err)
+		logger.Error.Printf("[aiService.GetUsersStatistic] Error parsing gemini text to Users: %v", err)
 		return nil, err
 	}
 

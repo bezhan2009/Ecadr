@@ -13,7 +13,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"time"
 )
 
@@ -54,7 +53,7 @@ func GetAnalyseForUserCourse(c *gin.Context) (interface{}, error) {
 		return nil, errs.ErrUserNotFound
 	}
 
-	userData, err := service.GetUserByID(userID)
+	userData, _, err := service.GetUserByID(userID)
 	if err != nil {
 		//controllers.HandleError(c, err)
 		return nil, err
@@ -143,6 +142,6 @@ func GetAnalyseForUserCourse(c *gin.Context) (interface{}, error) {
 		)
 	}
 
-	c.JSON(http.StatusCreated, analysedCourse)
+	//c.JSON(http.StatusCreated, analysedCourse)
 	return analysedCourse, nil
 }

@@ -76,7 +76,7 @@ func handleMessage(userID uint, msg amqp.Delivery) error {
 	pendingMessages[msg.DeliveryTag] = msg
 	pendingMu.Unlock()
 
-	user, err := service.GetUserByID(userID)
+	user, _, err := service.GetUserByID(userID)
 	if err != nil {
 		log.Printf(err.Error())
 		return err

@@ -1,4 +1,4 @@
-package aiSerivce
+package utils
 
 import (
 	"Ecadr/internal/app/models"
@@ -14,13 +14,13 @@ import (
 )
 
 const (
-	users            = "users"
-	kinderNotes      = "kinder_note"
-	schoolGrades     = "school_grades"
-	achievements     = "achievements"
-	courses          = "courses"
-	vacancies        = "vacancies"
-	companyInfoStats = "company_info_stats"
+	Users            = "Users"
+	KinderNotes      = "kinder_note"
+	SchoolGrades     = "school_grades"
+	Achievements     = "Achievements"
+	Courses          = "Courses"
+	Vacancies        = "Vacancies"
+	CompanyInfoStats = "company_info_stats"
 )
 
 func cleanGeminiText(text string) string {
@@ -40,7 +40,7 @@ func cleanGeminiText(text string) string {
 	return text
 }
 
-func addBrackets(text string) string {
+func AddBrackets(text string) string {
 	trimmedText := strings.TrimSpace(text)
 
 	if !strings.HasPrefix(trimmedText, "[") {
@@ -53,7 +53,7 @@ func addBrackets(text string) string {
 	return trimmedText
 }
 
-func serializeData(usersAnalyse []models.User,
+func SerializeData(usersAnalyse []models.User,
 	companyInfo []models.CompanyInfo,
 	kinderNote []models.KindergartenNote,
 	schoolGrade []models.SchoolGrade,
@@ -75,59 +75,59 @@ func serializeData(usersAnalyse []models.User,
 	if usersAnalyse == nil {
 		jsonKinderNote, err = json.Marshal(kinderNote)
 		if err != nil {
-			logger.Error.Printf("[aiService.serializeData] Error marshalling kindernote\n\tKinderNote:%v\n\tError: %v", kinderNote, err)
+			logger.Error.Printf("[aiService.SerializeData] Error marshalling kindernote\n\tKinderNote:%v\n\tError: %v", kinderNote, err)
 			return nil, err
 		}
 
 		jsonSchoolGrades, err = json.Marshal(schoolGrade)
 		if err != nil {
-			logger.Error.Printf("[aiService.serializeData] Error marshalling SchoolGrades\n\tSchoolGrades:%v\n\tError: %v", schoolGrades, err)
+			logger.Error.Printf("[aiService.SerializeData] Error marshalling SchoolGrades\n\tSchoolGrades:%v\n\tError: %v", SchoolGrades, err)
 			return nil, err
 		}
 
 		jsonAchievements, err = json.Marshal(achievementsUser)
 		if err != nil {
-			logger.Error.Printf("[aiService.serializeData] Error marshalling achievements\n\tachievements:%v\n\tError: %v", achievements, err)
+			logger.Error.Printf("[aiService.SerializeData] Error marshalling Achievements\n\tAchievements:%v\n\tError: %v", Achievements, err)
 			return nil, err
 		}
 	}
 
 	jsonUsers, err = json.Marshal(usersAnalyse)
 	if err != nil {
-		logger.Error.Printf("[aiService.GetAnalyseForCourseUser] Error marshalling kindernote\n\tUsers:%v\n\tError: %v", users, err)
+		logger.Error.Printf("[aiService.GetAnalyseForCourseUser] Error marshalling kindernote\n\tUsers:%v\n\tError: %v", Users, err)
 		return nil, err
 	}
 
 	jsonVacancies, err = json.Marshal(vacanciesWorker)
 	if err != nil {
-		logger.Error.Printf("[aiService.serializeData] Error marshalling vacancies\n\tcourses:%v\n\tError: %v", courses, err)
+		logger.Error.Printf("[aiService.SerializeData] Error marshalling Vacancies\n\tCourses:%v\n\tError: %v", Courses, err)
 		return nil, err
 	}
 
 	jsonCourses, err = json.Marshal(coursesWorker)
 	if err != nil {
-		logger.Error.Printf("[aiService.serializeData] Error marshalling courses\n\tcourses:%v\n\tError: %v", courses, err)
+		logger.Error.Printf("[aiService.SerializeData] Error marshalling Courses\n\tCourses:%v\n\tError: %v", Courses, err)
 		return nil, err
 	}
 
 	jsonCompanyInfo, err = json.Marshal(companyInfo)
 	if err != nil {
-		logger.Error.Printf("[aiService.serializeData] Error while marshalling company info stats\n\tcompany info:%v\n\tError: %v", companyInfo, err)
+		logger.Error.Printf("[aiService.SerializeData] Error while marshalling company info stats\n\tcompany info:%v\n\tError: %v", companyInfo, err)
 		return nil, err
 	}
 
-	jsons[users] = jsonUsers
-	jsons[companyInfoStats] = jsonCompanyInfo
-	jsons[kinderNotes] = jsonKinderNote
-	jsons[schoolGrades] = jsonSchoolGrades
-	jsons[achievements] = jsonAchievements
-	jsons[courses] = jsonCourses
-	jsons[vacancies] = jsonVacancies
+	jsons[Users] = jsonUsers
+	jsons[CompanyInfoStats] = jsonCompanyInfo
+	jsons[KinderNotes] = jsonKinderNote
+	jsons[SchoolGrades] = jsonSchoolGrades
+	jsons[Achievements] = jsonAchievements
+	jsons[Courses] = jsonCourses
+	jsons[Vacancies] = jsonVacancies
 
 	return jsons, nil
 }
 
-func sendTextToGemini(text string) (response string, err error) {
+func SendTextToGemini(text string) (response string, err error) {
 	geminiReq := models.GeminiCandidateReq{
 		Content: []models.GeminiContents{
 			{
