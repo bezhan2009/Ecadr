@@ -26,3 +26,8 @@ type Role struct {
 	ID   int    `gorm:"primaryKey"`
 	Name string `gorm:"type:varchar(20);not null;unique"`
 }
+
+type Charter struct {
+	Subject string  `json:"subject"`
+	Score   float64 `json:"score"`
+}

@@ -34,7 +34,7 @@ jobs:
 
       - name: Check VPS and Prepare Folders
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             mkdir -p ~/Ecadr/uploads
             if [ ! -f ~/Ecadr/.env ]; then
               echo ".env не найден в ~/Ecadr. Создай его вручную."; 
@@ -49,11 +49,11 @@ jobs:
             --exclude='.env' \
             --exclude='uploads' \
             -e "ssh -o StrictHostKeyChecking=no" ./ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/Ecadr
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/Ecadr
 
       - name: Build and Deploy Docker on VPS
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             cd ~/Ecadr
             docker-compose --env-file .env down
             docker image prune -a -f

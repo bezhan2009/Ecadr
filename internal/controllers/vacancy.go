@@ -125,7 +125,7 @@ func CreateVacancy(c *gin.Context) {
 // @Failure 400 {object} errs.ErrorResp
 // @Failure 403 {object} errs.ErrorResp
 // @Failure 500 {object} errs.ErrorResp
-// @Router /vacancy/{id} [put]
+// @Router /vacancy/{id} [patch]
 // @Security ApiKeyAuth
 func UpdateVacancy(c *gin.Context) {
 	vacancyIDStr := c.Param("id")

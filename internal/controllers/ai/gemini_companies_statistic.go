@@ -4,13 +4,12 @@ import (
 	"Ecadr/internal/app/models"
 	"Ecadr/internal/app/service"
 	aiService "Ecadr/internal/app/service/ai"
-	"Ecadr/internal/controllers"
 	"Ecadr/internal/security"
 	"Ecadr/pkg/db"
 	"Ecadr/pkg/logger"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
 	"time"
 )
 
@@ -29,27 +28,38 @@ func getAnalysedDataCompaniesFromRedis(key string) ([]models.CompanyStatistic, e
 	return nil, err
 }
 
-func GetCompaniesStatistic(c *gin.Context) {
+// GetCompaniesStatistic godoc
+// @Summary Статистика компаний
+// @Description Возвращает статистику компаний учитывая все их продукты(вакансий, курсы и тд)
+// @Tags AI
+// @Accept  json
+// @Produce  json
+// @Failure 400 {object} errs.ErrorResp "Неверный запрос"
+// @Failure 500 {object} errs.ErrorResp "Внутренняя ошибка сервера"
+// @Router /analyse/companies [get]
+// @Security ApiKeyAuth
+func GetCompaniesStatistic(c *gin.Context) (interface{}, error) {
+	fmt.Println("GetCompaniesStatistic")
 	companiesInfo, err := service.GetCompaniesProducts()
 	if err != nil {
-		controllers.HandleError(c, err)
-		return
+		//controllers.HandleError(c, err)
+		return nil, err
 	}
 
 	keyCacheRedis := "analyzed_companies"
 
 	analysedCompaniesCache, err := getAnalysedDataCompaniesFromRedis(keyCacheRedis)
 	if err == nil && len(analysedCompaniesCache) > 0 {
-		c.JSON(http.StatusOK, analysedCompaniesCache)
-		return
+		//c.JSON(http.StatusOK, analysedCompaniesCache)
+		return analysedCompaniesCache, nil
 	}
 
 	analysedData, err := aiService.GetCompaniesStatistic(
 		companiesInfo,
 	)
 	if err != nil {
-		controllers.HandleError(c, err)
-		return
+		//controllers.HandleError(c, err)
+		return nil, err
 	}
 
 	analysedDataJson, err := json.Marshal(analysedData)
@@ -63,5 +73,6 @@ func GetCompaniesStatistic(c *gin.Context) {
 		)
 	}
 
-	c.JSON(http.StatusCreated, analysedData)
+	//c.JSON(http.StatusCreated, analysedData)
+	return analysedData, nil
 }

@@ -9,6 +9,14 @@ import (
 	"strconv"
 )
 
+// GetCompanyByID godoc
+// @Summary Получить компанию по ID
+// @Description Возвращает информацию о компании по ее уникальному ID
+// @Tags Company
+// @Param id path int true "ID Компании"
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Router /company/{id} [get]
 func GetCompanyByID(c *gin.Context) {
 	companyIDStr := c.Param("id")
 	companyID, err := strconv.Atoi(companyIDStr)
@@ -26,6 +34,17 @@ func GetCompanyByID(c *gin.Context) {
 	c.JSON(http.StatusOK, company)
 }
 
+// UpdateCompany godoc
+// @Summary Обновить информацию о компании
+// @Description Обновляет данные компании по ее уникальному ID
+// @Tags Company
+// @Accept json
+// @Produce json
+// @Param id path int true "ID Компании"
+// @Success 200 {object} models.ErrorResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Router /company/{id} [patch]
 func UpdateCompany(c *gin.Context) {
 	companyIDStr := c.Param("id")
 	companyID, err := strconv.Atoi(companyIDStr)

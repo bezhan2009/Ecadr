@@ -10,9 +10,15 @@ import (
 	"time"
 )
 
-func GetUsersWithPagination(search string, afterCreatedAt *time.Time,
-	afterID *uint, limit int) (users []models.User, err error) {
-	query := db.GetDBConn().
+func GetUsersWithPagination(
+	search string,
+	afterCreatedAt *time.Time,
+	afterID *uint,
+	limit int,
+) ([]models.User, error) {
+	dbConn := db.GetDBConn()
+
+	query := dbConn.
 		Preload("KindergartenNotes").
 		Preload("SchoolGrades").
 		Preload("Achievements").
@@ -32,20 +38,25 @@ func GetUsersWithPagination(search string, afterCreatedAt *time.Time,
 		)
 	}
 
-	// Keyset pagination
+	// Cursor pagination: fetch users after given (created_at, id)
 	if afterCreatedAt != nil && afterID != nil {
 		query = query.Where(`
 			(users.created_at > ?) OR 
 			(users.created_at = ? AND users.id > ?)`,
-			afterCreatedAt, afterCreatedAt, afterID)
+			*afterCreatedAt, *afterCreatedAt, *afterID,
+		)
 	}
 
-	err = query.
+	// Apply ordering and limit
+	var users []models.User
+	err := query.
+		Order("users.created_at ASC").
+		Order("users.id ASC").
 		Limit(limit).
 		Find(&users).Error
 
 	if err != nil {
-		logger.Error.Printf("[repository.GetUsersWithPagination] error getting users: %s\n", err.Error())
+		logger.Error.Printf("[repository.GetUsersWithPagination] error: %s", err.Error())
 		return nil, TranslateGormError(err)
 	}
 

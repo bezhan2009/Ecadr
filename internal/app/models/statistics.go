@@ -1,8 +1,9 @@
 package models
 
 type UsersStatistic struct {
-	Subject  string `json:"subject"`
-	Quantity int    `json:"quantity"`
+	Recommend string `json:"recommend"`
+	Subject   string `json:"subject"`
+	Quantity  int    `json:"quantity"`
 }
 
 type CompanyStatisticJSONUtil struct {

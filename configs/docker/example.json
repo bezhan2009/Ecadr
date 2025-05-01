@@ -12,20 +12,20 @@
     "local_time": true
   },
   "app_params": {
-    "gin_mode": "release",
-    "port_run": "6565",
-    "server_url": "localhost",
-    "server_name": "Ecadr_service"
+    "gin_mode": "",
+    "port_run": "",
+    "server_url": "",
+    "server_name": ""
   },
   "postgres_params": {
-    "host": "db",
-    "port": "5432",
-    "user": "postgres",
-    "database": "ecadr_db",
-    "sslmode": "disable"
+    "host": "",
+    "port": "",
+    "user": "",
+    "database": "",
+    "sslmode": ""
   },
   "redis_params": {
-    "host": "redis",
+    "host": "",
     "port": 6379,
     "password": "",
     "db": 0

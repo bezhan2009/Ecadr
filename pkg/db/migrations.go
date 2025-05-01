@@ -99,5 +99,15 @@ func Migrate() error {
 		return err
 	}
 
+	err = seeds.SeedTests(dbConn)
+	if err != nil {
+		return err
+	}
+
+	err = seeds.SeedTestSubmissions(dbConn)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
