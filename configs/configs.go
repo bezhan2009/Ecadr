@@ -12,7 +12,7 @@ import (
 func ReadSettings() (models.Configs, error) {
 	var AppSettings models.Configs
 
-	configFile, err := os.Open("configs/configs.json")
+	configFile, err := os.Open(os.Getenv("CONFIG_PATH"))
 	if err != nil {
 		configFile, err = os.Open("configs/example.json")
 		if err != nil {
